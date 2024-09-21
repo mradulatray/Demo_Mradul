@@ -17,16 +17,16 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        var obj = Person()
-        obj.name = "atray"
-        print(obj.name)
-        
-        print(obj.value(forKey: "name"))
-        
-        obj.observe(\.name) { Person, value in
-            print(value.oldValue)
-            print(value.newValue)
-        }
+//        var obj = Person()
+//        obj.name = "atray"
+//        print(obj.name)
+//        
+//        print(obj.value(forKey: "name"))
+//        
+//        obj.observe(\.name) { Person, value in
+//            print(value.oldValue)
+//            print(value.newValue)
+//        }
         
         
         
