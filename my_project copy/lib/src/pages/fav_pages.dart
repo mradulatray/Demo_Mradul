@@ -1,0 +1,144 @@
+import 'package:flutter/material.dart';
+
+import '../elements/DrawerWidget.dart';
+import '../elements/FilterWidget.dart';
+import '../helpers/helper.dart';
+import '../models/route_argument.dart';
+import '../pages/home.dart';
+// import '../pages/map.dart';
+import '../pages/notifications.dart';
+import '../pages/orders.dart';
+// import 'messages.dart';
+import 'favorites.dart';
+import 'new_menu_list.dart';
+
+// ignore: must_be_immutable
+class FavPageWidget extends StatefulWidget {
+  dynamic currentTab;
+  late RouteArgument routeArgument;
+  Widget currentPage = FavoritesWidget();
+  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+
+  FavPageWidget({
+    Key? key,
+    this.currentTab,
+  }) {
+    if (currentTab != null) {
+      if (currentTab is RouteArgument) {
+        routeArgument = currentTab;
+        currentTab = int.parse(currentTab.id);
+      }
+    } else {
+      currentTab = 0;
+    }
+  }
+  @override
+  _FavPageWidgetState createState() {
+    return _FavPageWidgetState();
+  }
+}
+
+class _FavPageWidgetState extends State<FavPageWidget> {
+  initState() {
+    super.initState();
+    _selectTab(widget.currentTab);
+  }
+
+  @override
+  void didUpdateWidget(FavPageWidget oldWidget) {
+    _selectTab(oldWidget.currentTab);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _selectTab(int tabItem) {
+    setState(() {
+      widget.currentTab = tabItem;
+      switch (tabItem) {
+        case 0:
+          widget.currentPage =
+              FavoritesWidget(parentScaffoldKey: widget.scaffoldKey);
+          break;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: Helper.of(context).onWillPop,
+      child: Scaffold(
+        key: widget.scaffoldKey,
+        drawer: DrawerWidget(),
+        endDrawer: FilterWidget(onFilter: (filter) {
+          Navigator.of(context)
+              .pushReplacementNamed('/Pages', arguments: widget.currentTab);
+        }),
+        body: widget.currentPage,
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Theme.of(context).colorScheme.secondary,
+          selectedFontSize: 0,
+          unselectedFontSize: 0,
+          iconSize: 22,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          selectedIconTheme: IconThemeData(size: 28),
+          unselectedItemColor: Theme.of(context).focusColor.withOpacity(1),
+          currentIndex: widget.currentTab,
+          onTap: (int i) {
+            this._selectTab(i);
+          },
+          // this will be set when a new tab is tapped
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.notifications),
+              label: '',
+            ),
+            /*   BottomNavigationBarItem(
+              icon: Icon(Icons.location_on),
+              label: '',
+            ),*/
+            BottomNavigationBarItem(
+                label: '',
+                icon: Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondary,
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(50),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.4),
+                          blurRadius: 40,
+                          offset: Offset(0, 15)),
+                      BoxShadow(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.4),
+                          blurRadius: 13,
+                          offset: Offset(0, 3))
+                    ],
+                  ),
+                  child: new Icon(Icons.home,
+                      color: Theme.of(context).primaryColor),
+                )),
+            BottomNavigationBarItem(
+              icon: new Icon(Icons.local_mall),
+              label: '',
+            ),
+            /*    BottomNavigationBarItem(
+              icon: new Icon(Icons.chat),
+              label: '',
+            ),*/
+          ],
+        ),
+      ),
+    );
+  }
+}
