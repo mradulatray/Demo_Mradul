@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:food_delivery_app/src/models/food.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -33,7 +34,7 @@ class RestaurantWidget extends StatefulWidget {
 }
 
 class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
-  late RestaurantController _con;
+  RestaurantController? _con;
 
   _RestaurantWidgetState() : super(RestaurantController()) {
     _con = controller as RestaurantController;
@@ -41,20 +42,20 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
 
   @override
   void initState() {
-    _con.restaurant = widget.routeArgument.param as Restaurant;
-    _con.listenForGalleries(_con.restaurant.id ?? '');
-    _con.listenForFeaturedFoods(_con.restaurant.id ?? '');
-    _con.listenForRestaurantReviews(id: _con.restaurant.id);
+    _con?.restaurant = widget.routeArgument.param as Restaurant;
+    _con?.listenForGalleries(_con?.restaurant?.id ?? '');
+    _con?.listenForFeaturedFoods(_con?.restaurant?.id ?? '');
+    _con?.listenForRestaurantReviews(id: _con?.restaurant?.id);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         body: RefreshIndicator(
-          onRefresh: _con.refreshRestaurant,
-          child: _con.restaurant == null
+          onRefresh: (_con?.refreshRestaurant ?? () async {}),
+          child: _con?.restaurant == null
               ? CircularLoadingWidget(height: 500)
               : Stack(
                   fit: StackFit.expand,
@@ -83,10 +84,10 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                             collapseMode: CollapseMode.parallax,
                             background: Hero(
                               tag: (widget.routeArgument.heroTag ?? '') +
-                                  (_con.restaurant.id ?? ''),
+                                  (_con?.restaurant?.id ?? ''),
                               child: CachedNetworkImage(
                                 fit: BoxFit.cover,
-                                imageUrl: _con.restaurant.image?.url ?? '',
+                                imageUrl: _con?.restaurant?.image?.url ?? '',
                                 placeholder: (context, url) => Image.asset(
                                   'assets/img/loading.gif',
                                   fit: BoxFit.cover,
@@ -108,7 +109,7 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                   children: <Widget>[
                                     Expanded(
                                       child: Text(
-                                        _con.restaurant.name ?? '',
+                                        _con?.restaurant?.name ?? '',
                                         overflow: TextOverflow.fade,
                                         softWrap: false,
                                         maxLines: 2,
@@ -125,7 +126,7 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: <Widget>[
-                                            Text(_con.restaurant.rate ?? '',
+                                            Text(_con?.restaurant?.rate ?? '',
                                                 style: Theme.of(context)
                                                     .textTheme
                                                     .bodyLarge!
@@ -157,12 +158,12 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                     padding: EdgeInsets.symmetric(
                                         horizontal: 12, vertical: 3),
                                     decoration: BoxDecoration(
-                                        color: (_con.restaurant.closed ?? false)
+                                        color: (_con?.restaurant?.closed ?? false)
                                             ? Colors.grey
                                             : Colors.green,
                                         borderRadius:
                                             BorderRadius.circular(24)),
-                                    child: (_con.restaurant.closed ?? false)
+                                    child: (_con?.restaurant?.closed ?? false)
                                         ? Text(
                                             S.of(context).closed,
                                             style: Theme.of(context)
@@ -189,14 +190,14 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                         horizontal: 12, vertical: 3),
                                     decoration: BoxDecoration(
                                         color:
-                                            Helper.canDelivery(_con.restaurant)
+                                            Helper.canDelivery((_con?.restaurant ?? Restaurant()))
                                                 ? Colors.green
                                                 : Colors.grey,
                                         borderRadius:
                                             BorderRadius.circular(24)),
                                     child: Text(
                                       Helper.getDistance(
-                                          (_con.restaurant.distance ?? 0),
+                                          (_con?.restaurant?.distance ?? 0),
                                           Helper.of(context).trans(
                                               (setting.value.distanceUnit ??
                                                   ''))),
@@ -220,7 +221,7 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                 //     (_con.restaurant.description ?? '')),
                               ),
                               ImageThumbCarouselWidget(
-                                  galleriesList: _con.galleries),
+                                  galleriesList: (_con?.galleries ?? [])),
                               Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 20),
@@ -348,7 +349,7 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                   children: <Widget>[
                                     Expanded(
                                       child: Text(
-                                        '${_con.restaurant.phone}',
+                                        '${_con?.restaurant?.phone}',
                                         //'${_con.restaurant.phone} \n${_con.restaurant.mobile}',
                                         overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)
@@ -367,24 +368,24 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                         padding: EdgeInsets.all(0),
                                         onPressed: () {
                                           launch(
-                                              "tel:${_con.restaurant.mobile}");
+                                              "tel:${_con?.restaurant?.mobile}");
                                         },
-                                        child: Icon(
-                                          Icons.call,
-                                          color: Theme.of(context).primaryColor,
-                                          size: 24,
-                                        ),
                                         color: Theme.of(context)
                                             .colorScheme
                                             .secondary
                                             .withOpacity(0.9),
                                         shape: StadiumBorder(),
+                                        child: Icon(
+                                          Icons.call,
+                                          color: Theme.of(context).primaryColor,
+                                          size: 24,
+                                        ),
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              _con.featuredFoods.isEmpty
+                              (_con?.featuredFoods.isEmpty ?? false)
                                   ? SizedBox(height: 0)
                                   : Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -406,7 +407,7 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                         ),
                                       ),
                                     ),
-                              _con.featuredFoods.isEmpty
+                              (_con?.featuredFoods.isEmpty ?? false)
                                   ? SizedBox(height: 0)
                                   : ListView.separated(
                                       padding:
@@ -414,20 +415,20 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                       scrollDirection: Axis.vertical,
                                       shrinkWrap: true,
                                       primary: false,
-                                      itemCount: _con.featuredFoods.length,
+                                      itemCount: (_con?.featuredFoods.length ?? 0),
                                       separatorBuilder: (context, index) {
                                         return SizedBox(height: 10);
                                       },
                                       itemBuilder: (context, index) {
                                         return FoodItemWidget(
                                           heroTag: 'details_featured_food',
-                                          food: _con.featuredFoods
-                                              .elementAt(index),
+                                          food: (_con?.featuredFoods
+                                              .elementAt(index) ?? Food()),
                                         );
                                       },
                                     ),
                               SizedBox(height: 100),
-                              _con.reviews.isEmpty
+                              (_con?.reviews.isEmpty ?? false)
                                   ? SizedBox(height: 5)
                                   : Padding(
                                       padding: const EdgeInsets.symmetric(
@@ -449,13 +450,13 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                                         ),
                                       ),
                                     ),
-                              _con.reviews.isEmpty
+                              (_con?.reviews.isEmpty ?? false)
                                   ? SizedBox(height: 5)
                                   : Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 20, vertical: 10),
                                       child: ReviewsListWidget(
-                                          reviewsList: _con.reviews),
+                                          reviewsList: (_con?.reviews ?? [])),
                                     ),
                             ],
                           ),
@@ -470,7 +471,7 @@ class _RestaurantWidgetState extends StateMVC<RestaurantWidget> {
                           labelColor: Theme.of(context).hintColor,
                           routeArgument: RouteArgument(
                               id: '0',
-                              param: _con.restaurant.id,
+                              param: _con?.restaurant?.id,
                               heroTag: 'home_slide')),
                     ),
                   ],

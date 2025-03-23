@@ -11,6 +11,7 @@ import '../repository/cart_repository.dart';
 import '../repository/coupon_repository.dart';
 import '../repository/settings_repository.dart';
 import '../repository/user_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class CartController extends ControllerMVC {
   List<Cart> carts = <Cart>[];
@@ -19,15 +20,16 @@ class CartController extends ControllerMVC {
   int cartCount = 0;
   double subTotal = 0.0;
   double total = 0.0;
-  // late GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   String typePaymenyt = "";
   String selectedOption = ""; // Default to 'Delivery'
-  late String paymentForDelivery;
+  String? paymentForDelivery;
 
   void updateDeliveryOption(String option) {
     selectedOption = option;
@@ -37,20 +39,20 @@ class CartController extends ControllerMVC {
   void listenForCarts({String? message}) async {
     carts.clear();
     final Stream<Cart> stream = await getCart();
-    stream.listen((Cart _cart) {
-      if (!carts.contains(_cart)) {
+    stream.listen((Cart cart) {
+      if (!carts.contains(cart)) {
         setState(() {
-          if (_cart.food != null) {
-            coupon = _cart.food!.applyCoupon(coupon);
-            carts.add(_cart);
+          if (cart.food != null) {
+            coupon = cart.food!.applyCoupon(coupon);
+            carts.add(cart);
           }
         });
       }
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () async {
@@ -81,18 +83,18 @@ class CartController extends ControllerMVC {
 
   void listenForCartsCount({String? message}) async {
     final Stream<int> stream = await getCartCount();
-    stream.listen((int _count) {
+    stream.listen((int count) {
       setState(() {
-        this.cartCount = _count;
+        cartCount = count;
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         BuildContext? context = state?.context ?? scaffoldKey.currentContext;
         if (context != null) {
           ScaffoldMessenger.of(scaffoldKey.currentContext!)
               .showSnackBar(SnackBar(
-            content: Text(S.of(safeContext).verify_your_internet_connection),
+            content: Text(S.of(safeContext!).verify_your_internet_connection),
           ));
         }
       }
@@ -103,20 +105,22 @@ class CartController extends ControllerMVC {
     setState(() {
       carts = [];
     });
-    listenForCarts(message: S.of(safeContext).carts_refreshed_successfuly);
+    if (safeContext != null) {
+      listenForCarts(message: S.of(safeContext!).carts_refreshed_successfuly);
+    }
   }
 
-  void removeFromCart(Cart _cart) async {
+  void removeFromCart(Cart cart) async {
     setState(() {
-      this.carts.remove(_cart);
+      carts.remove(cart);
     });
-    removeCart(_cart).then((value) {
+    removeCart(cart).then((value) {
       calculateSubtotal("Free");
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
           content: Text(S
-              .of(safeContext)
-              .the_food_was_removed_from_your_cart(_cart.food?.name ?? '')),
+              .of(safeContext!)
+              .the_food_was_removed_from_your_cart(cart.food?.name ?? '')),
         ));
       }
     });
@@ -126,14 +130,14 @@ class CartController extends ControllerMVC {
     //debugPrint("llll -- $free");
     double cartPrice = 0;
     subTotal = 0;
-    carts.forEach((cart) {
+    for (var cart in carts) {
       cartPrice = cart.food?.price ?? 0;
       cart.extras?.forEach((element) {
         cartPrice += (element.price ?? 0);
       });
       cartPrice *= cart.quantity ?? 0;
       subTotal += cartPrice;
-    });
+    }
     if (Helper.canDelivery((carts[0].food?.restaurant ?? Restaurant()),
         carts: carts)) {
       //debugPrint("del click $deliveryFee");
@@ -163,15 +167,15 @@ class CartController extends ControllerMVC {
   }
 
   void doApplyCoupon(String code, {String? message}) async {
-    coupon = new Coupon.fromJSON({"code": code, "valid": null});
+    coupon = Coupon.fromJSON({"code": code, "valid": null});
     final Stream<Coupon> stream = await verifyCoupon(code);
-    stream.listen((Coupon _coupon) async {
-      coupon = _coupon;
+    stream.listen((Coupon coupon) async {
+      coupon = coupon;
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -236,6 +240,6 @@ class CartController extends ControllerMVC {
     } else if (coupon.valid == false) {
       return Colors.redAccent;
     }
-    return Theme.of(safeContext).focusColor.withOpacity(0.7);
+    return Theme.of(safeContext!).focusColor.withOpacity(0.7);
   }
 }

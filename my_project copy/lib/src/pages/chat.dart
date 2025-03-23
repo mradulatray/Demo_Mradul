@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/user.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -28,7 +29,7 @@ class _ChatWidgetState extends StateMVC<ChatWidget> {
   final _myListKey = GlobalKey<AnimatedListState>();
   final myController = TextEditingController();
 
-  late ChatController _con;
+   ChatController? _con;
 
   _ChatWidgetState() : super(ChatController()) {
     _con = controller as ChatController;
@@ -36,9 +37,9 @@ class _ChatWidgetState extends StateMVC<ChatWidget> {
 
   @override
   void initState() {
-    _con.conversation = widget.routeArgument.param as Conversation;
-    if (_con.conversation.id != null) {
-      _con.listenForChats(_con.conversation);
+    _con?.conversation = widget.routeArgument.param as Conversation;
+    if (_con?.conversation?.id != null) {
+      _con?.listenForChats(_con?.conversation ?? Conversation([]));
     }
     super.initState();
   }
@@ -52,7 +53,7 @@ class _ChatWidgetState extends StateMVC<ChatWidget> {
 
   Widget chatList() {
     return StreamBuilder(
-      stream: _con.chats,
+      stream: _con?.chats,
       builder: (context, snapshot) {
         return EmptyMessagesWidget();
 
@@ -84,7 +85,7 @@ class _ChatWidgetState extends StateMVC<ChatWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -106,7 +107,7 @@ class _ChatWidgetState extends StateMVC<ChatWidget> {
             }),
         automaticallyImplyLeading: false,
         title: Text(
-          _con.conversation.name ?? '',
+          _con?.conversation?.name ?? '',
           overflow: TextOverflow.fade,
           maxLines: 1,
           style: Theme.of(context)
@@ -146,7 +147,7 @@ class _ChatWidgetState extends StateMVC<ChatWidget> {
                 suffixIcon: IconButton(
                   padding: EdgeInsets.only(right: 30),
                   onPressed: () {
-                    _con.addMessage(_con.conversation, myController.text);
+                    _con?.addMessage((_con?.conversation ?? Conversation([])), myController.text);
                     Timer(Duration(milliseconds: 100), () {
                       myController.clear();
                     });

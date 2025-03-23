@@ -11,15 +11,14 @@ import '../models/route_argument.dart';
 class RazorPayPaymentWidget extends StatefulWidget {
   RouteArgument routeArgument;
 
-  RazorPayPaymentWidget({Key? key, required this.routeArgument})
-      : super(key: key);
+  RazorPayPaymentWidget({super.key, required this.routeArgument});
 
   @override
   _RazorPayPaymentWidgetState createState() => _RazorPayPaymentWidgetState();
 }
 
 class _RazorPayPaymentWidgetState extends StateMVC<RazorPayPaymentWidget> {
-  late RazorPayController _con;
+  RazorPayController? _con;
 
   _RazorPayPaymentWidgetState() : super(RazorPayController()) {
     _con = controller as RazorPayController;
@@ -28,7 +27,7 @@ class _RazorPayPaymentWidgetState extends StateMVC<RazorPayPaymentWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

@@ -6,9 +6,9 @@ import '../models/payment_method.dart';
 
 // ignore: must_be_immutable
 class DeliveryAddressesItemWidget extends StatelessWidget {
-  late String heroTag;
+  String? heroTag;
   model.Address address;
-  late PaymentMethod? paymentMethod;
+  PaymentMethod? paymentMethod;
   ValueChanged<model.Address>? onPressed;
   ValueChanged<model.Address>? onLongPress;
   ValueChanged<model.Address>? onDismissed;

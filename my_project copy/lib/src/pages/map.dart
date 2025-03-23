@@ -13,16 +13,17 @@ class MapWidget extends StatefulWidget {
   final RouteArgument routeArgument;
   final GlobalKey<ScaffoldState> parentScaffoldKey;
 
-  MapWidget(
-      {Key? key, required this.routeArgument, required this.parentScaffoldKey})
-      : super(key: key);
+  const MapWidget(
+      {super.key,
+      required this.routeArgument,
+      required this.parentScaffoldKey});
 
   @override
   _MapWidgetState createState() => _MapWidgetState();
 }
 
 class _MapWidgetState extends StateMVC<MapWidget> {
-  late MapController _con;
+  MapController? _con;
 
   _MapWidgetState() : super(MapController()) {
     _con = controller as MapController;
@@ -30,13 +31,13 @@ class _MapWidgetState extends StateMVC<MapWidget> {
 
   @override
   void initState() {
-    _con.currentRestaurant = widget.routeArgument.param as Restaurant;
-    if (_con.currentRestaurant.latitude != null) {
+    _con?.currentRestaurant = widget.routeArgument.param as Restaurant;
+    if (_con?.currentRestaurant?.latitude != null) {
       // user select a restaurant
-      _con.getRestaurantLocation();
-      _con.getDirectionSteps();
+      _con?.getRestaurantLocation();
+      _con?.getDirectionSteps();
     } else {
-      _con.getCurrentLocation();
+      _con?.getCurrentLocation();
     }
     super.initState();
   }
@@ -48,15 +49,15 @@ class _MapWidgetState extends StateMVC<MapWidget> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        leading: _con.currentRestaurant.latitude == null
-            ? new IconButton(
-                icon: new Icon(Icons.sort, color: Theme.of(context).hintColor),
+        leading: _con?.currentRestaurant?.latitude == null
+            ? IconButton(
+                icon: Icon(Icons.sort, color: Theme.of(context).hintColor),
                 onPressed: () =>
                     widget.parentScaffoldKey.currentState?.openDrawer(),
               )
             : IconButton(
-                icon: new Icon(Icons.arrow_back,
-                    color: Theme.of(context).hintColor),
+                icon:
+                    Icon(Icons.arrow_back, color: Theme.of(context).hintColor),
                 onPressed: () =>
                     Navigator.of(context).pushNamed('/Pages', arguments: 2),
               ),
@@ -74,7 +75,7 @@ class _MapWidgetState extends StateMVC<MapWidget> {
               color: Theme.of(context).hintColor,
             ),
             onPressed: () {
-              _con.goCurrentLocation();
+              _con?.goCurrentLocation();
             },
           ),
           IconButton(
@@ -92,26 +93,27 @@ class _MapWidgetState extends StateMVC<MapWidget> {
 //        fit: StackFit.expand,
         alignment: AlignmentDirectional.bottomStart,
         children: <Widget>[
-          _con.cameraPosition == null
+          _con?.cameraPosition == null
               ? CircularLoadingWidget(height: 0)
               : GoogleMap(
                   mapToolbarEnabled: false,
                   mapType: MapType.normal,
-                  initialCameraPosition: _con.cameraPosition,
-                  markers: Set.from(_con.allMarkers),
+                  initialCameraPosition: (_con?.cameraPosition ??
+                      CameraPosition(target: LatLng(0, 0))),
+                  markers: Set.from((_con?.allMarkers ?? [])),
                   onMapCreated: (GoogleMapController controller) {
-                    _con.mapController.complete(controller);
+                    _con?.mapController.complete(controller);
                   },
                   onCameraMove: (CameraPosition cameraPosition) {
-                    _con.cameraPosition = cameraPosition;
+                    _con?.cameraPosition = cameraPosition;
                   },
                   onCameraIdle: () {
-                    _con.getRestaurantsOfArea();
+                    _con?.getRestaurantsOfArea();
                   },
-                  polylines: _con.polylines,
+                  polylines: _con?.polylines ?? {},
                 ),
           CardsCarouselWidget(
-            restaurantsList: _con.topRestaurants,
+            restaurantsList: (_con?.topRestaurants ?? []),
             heroTag: 'map_restaurants',
           ),
         ],

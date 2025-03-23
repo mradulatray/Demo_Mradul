@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/favorite.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -22,7 +23,7 @@ class FavoritesWidget extends StatefulWidget {
 class _FavoritesWidgetState extends StateMVC<FavoritesWidget> {
   String layout = 'grid';
 
-  late FavoriteController _con;
+  FavoriteController? _con;
 
   _FavoritesWidgetState() : super(FavoriteController()) {
     _con = controller as FavoriteController;
@@ -31,7 +32,7 @@ class _FavoritesWidgetState extends StateMVC<FavoritesWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         leading: new IconButton(
           icon: new Icon(Icons.sort, color: Theme.of(context).hintColor),
@@ -57,7 +58,7 @@ class _FavoritesWidgetState extends StateMVC<FavoritesWidget> {
       body: currentUser.value.apiToken == null
           ? PermissionDeniedWidget()
           : RefreshIndicator(
-              onRefresh: _con.refreshFavorites,
+              onRefresh: _con?.refreshFavorites ?? () async {},
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(vertical: 10),
                 child: Column(
@@ -120,7 +121,7 @@ class _FavoritesWidgetState extends StateMVC<FavoritesWidget> {
                         ),
                       ),
                     ),
-                    _con.favorites.isEmpty
+                    (_con?.favorites.isEmpty ?? false)
                         ? CircularLoadingWidget(height: 500)
                         : Offstage(
                             offstage: this.layout != 'list',
@@ -128,19 +129,19 @@ class _FavoritesWidgetState extends StateMVC<FavoritesWidget> {
                               scrollDirection: Axis.vertical,
                               shrinkWrap: true,
                               primary: false,
-                              itemCount: _con.favorites.length,
+                              itemCount: (_con?.favorites.length ?? 0),
                               separatorBuilder: (context, index) {
                                 return SizedBox(height: 10);
                               },
                               itemBuilder: (context, index) {
                                 return FavoriteListItemWidget(
                                   heroTag: 'favorites_list',
-                                  favorite: _con.favorites.elementAt(index),
+                                  favorite: (_con?.favorites.elementAt(index) ?? Favorite()),
                                 );
                               },
                             ),
                           ),
-                    _con.favorites.isEmpty
+                    (_con?.favorites.isEmpty ?? false)
                         ? CircularLoadingWidget(height: 500)
                         : Offstage(
                             offstage: this.layout != 'grid',
@@ -160,10 +161,10 @@ class _FavoritesWidgetState extends StateMVC<FavoritesWidget> {
                                       : 4,
                               // Generate 100 widgets that display their index in the List.
                               children:
-                                  List.generate(_con.favorites.length, (index) {
+                                  List.generate((_con?.favorites.length ?? 0), (index) {
                                 return FavoriteGridItemWidget(
                                   heroTag: 'favorites_grid',
-                                  favorite: _con.favorites.elementAt(index),
+                                  favorite:( _con?.favorites.elementAt(index) ?? Favorite()),
                                 );
                               }),
                             ),

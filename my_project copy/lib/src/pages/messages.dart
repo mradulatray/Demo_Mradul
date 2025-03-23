@@ -20,7 +20,7 @@ class MessagesWidget extends StatefulWidget {
 }
 
 class _MessagesWidgetState extends StateMVC<MessagesWidget> {
-  late ChatController _con;
+   ChatController? _con;
 
   _MessagesWidgetState() : super(ChatController()) {
     _con = controller as ChatController;
@@ -28,16 +28,16 @@ class _MessagesWidgetState extends StateMVC<MessagesWidget> {
 
   @override
   void initState() {
-    _con.listenForConversations();
+    _con?.listenForConversations();
     super.initState();
   }
 
   Widget conversationsList() {
     return StreamBuilder(
-      stream: _con.conversations,
+      stream: _con?.conversations,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          var _docs = _con.orderSnapshotByTime(snapshot);
+          var _docs = _con?.orderSnapshotByTime(snapshot);
           return ListView.separated(
               itemCount: _docs.length,
               separatorBuilder: (context, index) {
@@ -67,7 +67,7 @@ class _MessagesWidgetState extends StateMVC<MessagesWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         leading: new IconButton(
           icon: new Icon(Icons.sort, color: Theme.of(context).hintColor),

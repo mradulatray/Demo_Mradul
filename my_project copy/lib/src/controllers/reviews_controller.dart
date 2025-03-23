@@ -10,17 +10,24 @@ import '../models/review.dart';
 import '../repository/food_repository.dart' as foodRepo;
 import '../repository/order_repository.dart';
 import '../repository/restaurant_repository.dart' as restaurantRepo;
+import '../repository/settings_repository.dart' as settingRepo;
 
 class ReviewsController extends ControllerMVC {
-  late Review restaurantReview;
+  Review? restaurantReview;
   List<Review> foodsReviews = [];
-  late Order order;
+  Order? order;
   List<Food> foodsOfOrder = [];
   List<OrderStatus> orderStatus = <OrderStatus>[];
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // ReviewsController() {
@@ -32,22 +39,22 @@ class ReviewsController extends ControllerMVC {
   void initState() {
     // TODO: implement initState
     super.initState();
-    this.restaurantReview = new Review.init("0");
+    restaurantReview = Review.init("0");
   }
 
   void listenForOrder({String? orderId, String? message}) async {
     final Stream<Order> stream = await getOrder(orderId);
-    stream.listen((Order _order) {
+    stream.listen((Order order) {
       setState(() {
-        order = _order;
+        order = order;
         foodsReviews = List.generate(
-            (order.foodOrders?.length ?? 0), (_) => new Review.init("0"));
+            (order.foodOrders?.length ?? 0), (_) => Review.init("0"));
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -63,41 +70,44 @@ class ReviewsController extends ControllerMVC {
     });
   }
 
-  void addFoodReview(Review _review, Food _food) async {
-    foodRepo.addFoodReview(_review, _food).then((value) {
-      if (scaffoldKey.currentContext != null) {
+  void addFoodReview(Review review, Food food) async {
+    foodRepo.addFoodReview(review, food).then((value) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).the_food_has_been_rated_successfully),
+          content:
+              Text(S.of(safeContext!).the_food_has_been_rated_successfully),
         ));
       }
     });
   }
 
-  void addRestaurantReview(Review _review) async {
+  void addRestaurantReview(Review review) async {
     restaurantRepo
-        .addRestaurantReview(_review,
-            (this.order.foodOrders?[0].food?.restaurant ?? Restaurant()))
+        .addRestaurantReview(
+            review, (order?.foodOrders?[0].food?.restaurant ?? Restaurant()))
         .then((value) {
       refreshOrder();
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
           content: Text(
-              S.of(safeContext).the_restaurant_has_been_rated_successfully),
+              S.of(safeContext!).the_restaurant_has_been_rated_successfully),
         ));
       }
     });
   }
 
   Future<void> refreshOrder() async {
-    listenForOrder(
-        orderId: order.id,
-        message: S.of(safeContext).reviews_refreshed_successfully);
+    if (safeContext != null) {
+      listenForOrder(
+          orderId: order?.id,
+          message: S.of(safeContext!).reviews_refreshed_successfully);
+    }
   }
 
   void getFoodsOfOrder() {
-    this.order.foodOrders?.forEach((_foodOrder) {
-      if (!foodsOfOrder.contains(_foodOrder.food)) {
-        foodsOfOrder.add(_foodOrder.food ?? Food());
+    order?.foodOrders?.forEach((foodOrder) {
+      if (!foodsOfOrder.contains(foodOrder.food)) {
+        foodsOfOrder.add(foodOrder.food ?? Food());
       }
     });
   }

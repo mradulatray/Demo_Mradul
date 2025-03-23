@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../models/route_argument.dart';
@@ -12,12 +13,14 @@ import '../helpers/helper.dart';
 import '../models/user.dart' as model;
 
 class SignUpWidget extends StatefulWidget {
+  const SignUpWidget({super.key});
+
   @override
   _SignUpWidgetState createState() => _SignUpWidgetState();
 }
 
 class _SignUpWidgetState extends StateMVC<SignUpWidget> {
-  late UserController _con;
+  UserController? _con;
 
   _SignUpWidgetState() : super(UserController()) {
     _con = controller as UserController;
@@ -28,7 +31,7 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
     return WillPopScope(
       onWillPop: Helper.of(context).onWillPop,
       child: Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         resizeToAvoidBottomInset: false,
         body: Stack(
           alignment: AlignmentDirectional.topCenter,
@@ -44,7 +47,7 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
             ),
             Positioned(
               top: config.App(context).appHeight(26) - 120,
-              child: Container(
+              child: SizedBox(
                 width: config.App(context).appWidth(84),
                 height: config.App(context).appHeight(26),
                 child: Text(
@@ -74,14 +77,14 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                 width: config.App(context).appWidth(88),
 //              height: config.App(context).appHeight(40),
                 child: Form(
-                  key: _con.loginFormKey,
+                  key: _con?.loginFormKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       TextFormField(
                         keyboardType: TextInputType.text,
-                        onSaved: (input) => _con.user.name = input ?? '',
+                        onSaved: (input) => _con?.user.name = input ?? '',
                         validator: (input) => (input?.length ?? 0) < 3
                             ? S.of(context).should_be_more_than_3_letters
                             : null,
@@ -117,7 +120,7 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                       SizedBox(height: 26),
                       TextFormField(
                         keyboardType: TextInputType.emailAddress,
-                        onSaved: (input) => _con.user.email = input ?? '',
+                        onSaved: (input) => _con?.user.email = input ?? '',
                         validator: (input) => !((input ?? '').contains('@'))
                             ? S.of(context).should_be_a_valid_email
                             : null,
@@ -158,7 +161,7 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                           FilteringTextInputFormatter.digitsOnly
                         ],
                         // Allow only numbers
-                        onSaved: (input) => _con.user.phone = input ?? '',
+                        onSaved: (input) => _con?.user.phone = input ?? '',
                         validator: (input) {
                           //print(input.startsWith('\+'));
                           return !((input ?? '').startsWith('00'))
@@ -196,8 +199,8 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                       ),
                       SizedBox(height: 15),
                       TextFormField(
-                        obscureText: _con.hidePassword,
-                        onSaved: (input) => _con.user.password = input ?? '',
+                        obscureText: _con?.hidePassword ?? false,
+                        onSaved: (input) => _con?.user.password = input ?? '',
                         validator: (input) {
                           if (input == null || input.isEmpty) {
                             return "Password cannot be empty."; // Optional: Handle empty input
@@ -245,11 +248,12 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
-                                _con.hidePassword = !_con.hidePassword;
+                                _con?.hidePassword =
+                                    !(_con?.hidePassword ?? false);
                               });
                             },
                             color: Theme.of(context).focusColor,
-                            icon: Icon(_con.hidePassword
+                            icon: Icon((_con?.hidePassword ?? false)
                                 ? Icons.visibility
                                 : Icons.visibility_off),
                           ),
@@ -275,14 +279,15 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                       ListTileTheme(
                         horizontalTitleGap: 0.0,
                         child: CheckboxListTile(
-                          value: _con.checkboxValue,
+                          value: _con?.checkboxValue,
                           contentPadding: EdgeInsets.zero,
                           onChanged: (val) {
                             setState(() {
-                              _con.checkboxValue = !_con.checkboxValue;
+                              _con?.checkboxValue =
+                                  !(_con?.checkboxValue ?? false);
                             });
                           },
-                          subtitle: !_con.checkboxValue
+                          subtitle: !(_con?.checkboxValue ?? false)
                               ? Text(
                                   'Required',
                                   style: TextStyle(color: Colors.red),
@@ -319,29 +324,31 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                         ),
                         color: Theme.of(context).colorScheme.secondary,
                         onPressed: () {
-                          if (_con.loginFormKey.currentState != null &&
-                              _con.loginFormKey.currentState!.validate() &&
-                              _con.checkboxValue == true) {
-                            _con.loginFormKey.currentState?.save();
+                          if (_con?.loginFormKey?.currentState != null &&
+                              (_con?.loginFormKey?.currentState!.validate() ??
+                                  false) &&
+                              _con?.checkboxValue == true) {
+                            _con?.loginFormKey?.currentState?.save();
                             //print(_con.user);
-                            _con.register2().then((value) {
+                            _con?.register2().then((value) {
                               //print("RegisterRespons====$value");
                               var bottomSheetController = _con
-                                  .scaffoldKey.currentState
+                                  ?.scaffoldKey.currentState
                                   ?.showBottomSheet(
                                 (context) =>
                                     MobileVerificationBottomSheetWidget(
-                                        scaffoldKey: _con.scaffoldKey,
-                                        user: _con.user),
+                                        scaffoldKey: (_con?.scaffoldKey ??
+                                            GlobalKey<ScaffoldState>()),
+                                        user: (_con?.user ?? model.User())),
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: new BorderRadius.only(
+                                  borderRadius: BorderRadius.only(
                                       topLeft: Radius.circular(10),
                                       topRight: Radius.circular(10)),
                                 ),
                               );
                               bottomSheetController?.closed.then((value) {
-                                bool mobile = _con.user.verifiedPhone ?? false;
-                                String mo = _con.user.phone ?? '';
+                                bool mobile = _con?.user.verifiedPhone ?? false;
+                                String mo = _con?.user.phone ?? '';
                                 print("otpresultis  $mobile - $mo ");
                                 /*   if(_con.user.verifiedPhone==true)
                                                       _con.register();*/
@@ -380,7 +387,7 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                                   ..onTap = () {
                                     Navigator.of(context).pushNamed('/Terms',
                                         arguments:
-                                            new RouteArgument(param: 'Terms'));
+                                            RouteArgument(param: 'Terms'));
                                   }),
                             TextSpan(text: ' | '),
                             TextSpan(
@@ -389,8 +396,8 @@ class _SignUpWidgetState extends StateMVC<SignUpWidget> {
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     Navigator.of(context).pushNamed('/Privacy',
-                                        arguments: new RouteArgument(
-                                            param: 'Privacy'));
+                                        arguments:
+                                            RouteArgument(param: 'Privacy'));
                                     // print('Privacy Policy"');
                                   }),
                           ],

@@ -27,7 +27,7 @@ class DeliveryPickupWidget extends StatefulWidget {
 }
 
 class _DeliveryPickupWidgetState extends StateMVC<DeliveryPickupWidget> {
-  late DeliveryPickupController _con;
+  DeliveryPickupController? _con;
 
   _DeliveryPickupWidgetState() : super(DeliveryPickupController()) {
     _con = controller as DeliveryPickupController;
@@ -36,8 +36,8 @@ class _DeliveryPickupWidgetState extends StateMVC<DeliveryPickupWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
-      bottomNavigationBar: CartBottomDetailsWidget(con: _con),
+      key: _con?.scaffoldKey,
+      bottomNavigationBar: CartBottomDetailsWidget(con: _con ?? DeliveryPickupController()),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -112,11 +112,11 @@ class _DeliveryPickupWidgetState extends StateMVC<DeliveryPickupWidget> {
                       style: Theme.of(context).textTheme.headlineLarge ??
                           TextStyle(fontSize: 18),
                     ),
-                    subtitle: _con.carts.isNotEmpty &&
+                    subtitle: (_con?.carts.isNotEmpty ?? false) &&
                             Helper.canDelivery(
-                                (_con.carts[0].food?.restaurant ??
+                                (_con?.carts[0].food?.restaurant ??
                                     Restaurant()),
-                                carts: _con.carts)
+                                carts: _con?.carts)
                         ? Text(
                             S
                                 .of(context)
@@ -133,24 +133,24 @@ class _DeliveryPickupWidgetState extends StateMVC<DeliveryPickupWidget> {
                           ),
                   ),
                 ),
-                _con.carts
-                        .isNotEmpty /* && Helper.canDelivery(_con.carts[0].food.restaurant, carts: _con.carts)*/
+                (_con?.carts
+                        .isNotEmpty ?? false)/* && Helper.canDelivery(_con.carts[0].food.restaurant, carts: _con.carts)*/
                     ? DeliveryAddressesItemWidget(
-                        paymentMethod: _con.getDeliveryMethod(),
-                        address: _con.deliveryAddress,
+                        paymentMethod: _con?.getDeliveryMethod(),
+                        address: _con?.deliveryAddress ?? Address(),
                         onPressed: (Address _address) {
                           //debugPrint("delivery_pickup     ---  ${_con.deliveryAddress}");
-                          if (_con.deliveryAddress == 'null') {
+                          if (_con?.deliveryAddress == 'null') {
                             DeliveryAddressDialog(
                               context: context,
                               address: _address,
                               onChanged: (Address _address) {
-                                _con.addAddress(_address);
-                                _con.toggleDelivery();
+                                _con?.addAddress(_address);
+                                _con?.toggleDelivery();
                               },
                             );
                           } else {
-                            _con.toggleDelivery();
+                            _con?.toggleDelivery();
                           }
                         },
                         /*onLongPress: (Address _address) {

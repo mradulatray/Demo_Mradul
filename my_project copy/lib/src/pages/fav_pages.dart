@@ -15,7 +15,7 @@ import 'new_menu_list.dart';
 // ignore: must_be_immutable
 class FavPageWidget extends StatefulWidget {
   dynamic currentTab;
-  late RouteArgument routeArgument;
+  RouteArgument? routeArgument;
   Widget currentPage = FavoritesWidget();
   final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 

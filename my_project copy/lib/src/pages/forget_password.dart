@@ -13,7 +13,7 @@ class ForgetPasswordWidget extends StatefulWidget {
 }
 
 class _ForgetPasswordWidgetState extends StateMVC<ForgetPasswordWidget> {
-  late UserController _con;
+   UserController? _con;
 
   _ForgetPasswordWidgetState() : super(UserController()) {
     _con = controller as UserController;
@@ -28,7 +28,7 @@ class _ForgetPasswordWidgetState extends StateMVC<ForgetPasswordWidget> {
     return WillPopScope(
       onWillPop: Helper.of(context).onWillPop,
       child: Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         //resizeToAvoidBottomPadding: false,
         resizeToAvoidBottomInset: false,
         body: Stack(
@@ -76,14 +76,14 @@ class _ForgetPasswordWidgetState extends StateMVC<ForgetPasswordWidget> {
                 width: config.App(context).appWidth(88),
 //              height: config.App(context).appHeight(55),
                 child: Form(
-                  key: _con.loginFormKey,
+                  key: _con?.loginFormKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       TextFormField(
                         keyboardType: TextInputType.emailAddress,
-                        onSaved: (input) => _con.user.email = input ?? '',
+                        onSaved: (input) => _con?.user.email = input ?? '',
                         validator: (input) => (!((input ?? '').contains('@')))
                             ? S.of(context).should_be_a_valid_email
                             : null,
@@ -125,7 +125,7 @@ class _ForgetPasswordWidgetState extends StateMVC<ForgetPasswordWidget> {
                         ),
                         color: Theme.of(context).colorScheme.secondary,
                         onPressed: () {
-                          _con.resetPassword();
+                          _con?.resetPassword();
                         },
                       ),
                     ],

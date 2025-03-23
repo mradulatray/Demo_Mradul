@@ -26,7 +26,7 @@ class HomeWidget extends StatefulWidget {
 }
 
 class _HomeWidgetState extends StateMVC<HomeWidget> {
-  late HomeController _con;
+  HomeController? _con;
 
   _HomeWidgetState() : super(HomeController()) {
     _con = controller as HomeController;
@@ -63,7 +63,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _con.refreshHome,
+        onRefresh: _con?.refreshHome ?? () async {},
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(horizontal: 0, vertical: 10),
           child: Column(
@@ -78,7 +78,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
                       '');
               switch (_homeSection) {
                 case 'slider':
-                  return HomeSliderWidget(slides: _con.slides);
+                  return HomeSliderWidget(slides: _con?.slides ?? []);
                 case 'search':
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -126,7 +126,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
                                     ),
                                   );
                                   bottomSheetController?.closed.then((value) {
-                                    _con.refreshHome();
+                                    _con?.refreshHome();
                                   });
                                 }
                               },
@@ -205,7 +205,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
                   );
                 case 'top_restaurants':
                   return CardsCarouselWidget(
-                      restaurantsList: _con.topRestaurants,
+                      restaurantsList: _con?.topRestaurants ?? [],
                       heroTag: 'home_top_restaurants');
                 case 'trending_week_heading':
                   return ListTile(
@@ -228,7 +228,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
                   );
                 case 'trending_week':
                   return FoodsCarouselWidget(
-                      foodsList: _con.trendingFoods,
+                      foodsList: _con?.trendingFoods ?? [],
                       heroTag: 'home_food_carousel');
                 case 'categories_heading':
                   return Padding(
@@ -249,7 +249,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
                   );
                 case 'categories':
                   return CategoriesCarouselWidget(
-                    categories: _con.categories,
+                    categories: _con?.categories ?? [] ,
                   );
                 case 'popular_heading':
                   return Padding(
@@ -273,7 +273,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: GridWidget(
-                      restaurantsList: _con.popularRestaurants,
+                      restaurantsList: _con?.popularRestaurants ?? [],
                       heroTag: 'home_restaurants',
                     ),
                   );
@@ -297,7 +297,7 @@ class _HomeWidgetState extends StateMVC<HomeWidget> {
                 case 'recent_reviews':
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: ReviewsListWidget(reviewsList: _con.recentReviews),
+                    child: ReviewsListWidget(reviewsList: _con?.recentReviews ?? []),
                   );
                 default:
                   return SizedBox(height: 0);

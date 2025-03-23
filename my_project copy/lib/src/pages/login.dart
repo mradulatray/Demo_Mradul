@@ -14,7 +14,7 @@ class LoginWidget extends StatefulWidget {
 }
 
 class _LoginWidgetState extends StateMVC<LoginWidget> {
-  late UserController _con;
+   UserController? _con;
 
   _LoginWidgetState() : super(UserController()) {
     _con = controller as UserController;
@@ -32,7 +32,7 @@ class _LoginWidgetState extends StateMVC<LoginWidget> {
     return WillPopScope(
       onWillPop: Helper.of(context).onWillPop,
       child: Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         //resizeToAvoidBottomPadding: false,
         resizeToAvoidBottomInset: false,
         body: Stack(
@@ -81,14 +81,14 @@ class _LoginWidgetState extends StateMVC<LoginWidget> {
                 width: config.App(context).appWidth(88),
 //              height: config.App(context).appHeight(55),
                 child: Form(
-                  key: _con.loginFormKey,
+                  key: _con?.loginFormKey,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       TextFormField(
                         keyboardType: TextInputType.emailAddress,
-                        onSaved: (input) => _con.user.email = input ?? '',
+                        onSaved: (input) => _con?.user.email = input ?? '',
                         // validator: (input) => !input.contains('@') ? S.of(context).should_be_a_valid_email : null,
                         decoration: InputDecoration(
                           labelText: S.of(context).email,
@@ -122,11 +122,11 @@ class _LoginWidgetState extends StateMVC<LoginWidget> {
                       SizedBox(height: 33),
                       TextFormField(
                         keyboardType: TextInputType.text,
-                        onSaved: (input) => _con.user.password = input ?? '',
+                        onSaved: (input) => _con?.user.password = input ?? '',
                         validator: (input) => (input?.length ?? 0) < 3
                             ? S.of(context).should_be_more_than_3_characters
                             : null,
-                        obscureText: _con.hidePassword,
+                        obscureText: (_con?.hidePassword ?? false),
                         decoration: InputDecoration(
                           labelText: S.of(context).password,
                           labelStyle: TextStyle(
@@ -142,11 +142,11 @@ class _LoginWidgetState extends StateMVC<LoginWidget> {
                           suffixIcon: IconButton(
                             onPressed: () {
                               setState(() {
-                                _con.hidePassword = !_con.hidePassword;
+                                _con?.hidePassword = !(_con?.hidePassword ?? false);
                               });
                             },
                             color: Theme.of(context).focusColor,
-                            icon: Icon(_con.hidePassword
+                            icon: Icon((_con?.hidePassword ?? false)
                                 ? Icons.visibility
                                 : Icons.visibility_off),
                           ),
@@ -176,7 +176,7 @@ class _LoginWidgetState extends StateMVC<LoginWidget> {
                         ),
                         color: Theme.of(context).colorScheme.secondary,
                         onPressed: () {
-                          _con.login();
+                          _con?.login();
                         },
                       ),
                       SizedBox(height: 15),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/helpers/helper.dart';
 
 import '../models/language.dart';
 import '../repository/settings_repository.dart' as settingRepo;
@@ -20,7 +21,7 @@ class LanguageItemWidget extends StatefulWidget {
 class _LanguageItemWidgetState extends State<LanguageItemWidget>
     with SingleTickerProviderStateMixin {
   Animation? animation;
-  late AnimationController animationController;
+  AnimationController? animationController;
   Animation<double>? sizeCheckAnimation;
   Animation<double>? rotateCheckAnimation;
   Animation<double>? opacityAnimation;
@@ -32,8 +33,9 @@ class _LanguageItemWidgetState extends State<LanguageItemWidget>
     super.initState();
     animationController =
         AnimationController(duration: Duration(milliseconds: 350), vsync: this);
+        if(animationController!=null){
     CurvedAnimation curve =
-        CurvedAnimation(parent: animationController, curve: Curves.easeOut);
+        CurvedAnimation(parent: animationController!, curve: Curves.easeOut);
     animation = Tween(begin: 0.0, end: 40.0).animate(curve)
       ..addListener(() {
         setState(() {});
@@ -53,27 +55,27 @@ class _LanguageItemWidgetState extends State<LanguageItemWidget>
     sizeCheckAnimation = Tween<double>(begin: 0, end: 24).animate(curve)
       ..addListener(() {
         setState(() {});
-      });
+      });}
   }
 
   @override
   void dispose() {
     super.dispose();
-    animationController.dispose();
+    animationController?.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     if (widget.language.selected) {
-      animationController.forward();
+      animationController?.forward();
     }
     return InkWell(
       onTap: () async {
         widget.onTap(widget.language);
         if (widget.language.selected) {
-          animationController.reverse();
+          animationController?.reverse();
         } else {
-          animationController.forward();
+          animationController?.forward();
         }
         settingRepo.setting.value.mobileLanguage?.value =
             new Locale(widget.language.code, '');

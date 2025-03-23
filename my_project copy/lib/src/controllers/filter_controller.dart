@@ -9,17 +9,23 @@ import '../models/cart.dart';
 import '../models/cuisine.dart';
 import '../models/filter.dart';
 import '../repository/cuisine_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class FilterController extends ControllerMVC {
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   List<Cuisine> cuisines = [];
-  late Filter filter;
-  late Cart cart;
+  Filter? filter;
+  Cart? cart;
 
   @override
   void initState() {
@@ -46,18 +52,18 @@ class FilterController extends ControllerMVC {
 
   Future<void> saveFilter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    filter.cuisines =
+    filter?.cuisines =
         this.cuisines.where((_f) => (_f.selected ?? false)).toList();
-    prefs.setString('filter', json.encode(filter.toMap()));
+    prefs.setString('filter', json.encode(filter?.toMap()));
   }
 
   void listenForCuisines({String? message}) async {
     cuisines.add(new Cuisine.fromJSON(
-        {'id': '0', 'name': S.of(safeContext).all, 'selected': true}));
+        {'id': '0', 'name': S.of(safeContext!).all, 'selected': true}));
     final Stream<Cuisine> stream = await getCuisines();
     stream.listen((Cuisine _cuisine) {
       setState(() {
-        if (filter.cuisines?.contains(_cuisine) ?? false) {
+        if (filter?.cuisines?.contains(_cuisine) ?? false) {
           _cuisine.selected = true;
           cuisines.elementAt(0).selected = false;
         }
@@ -65,9 +71,9 @@ class FilterController extends ControllerMVC {
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -84,20 +90,22 @@ class FilterController extends ControllerMVC {
 
   Future<void> refreshCuisines() async {
     cuisines.clear();
-    listenForCuisines(
-        message: S.of(safeContext).addresses_refreshed_successfuly);
+    if (safeContext != null) {
+      listenForCuisines(
+          message: S.of(safeContext!).addresses_refreshed_successfuly);
+    }
   }
 
   void clearFilter() {
     setState(() {
-      filter.open = false;
-      filter.delivery = false;
+      filter?.open = false;
+      filter?.delivery = false;
       resetCuisines();
     });
   }
 
   void resetCuisines() {
-    filter.cuisines = [];
+    filter?.cuisines = [];
     cuisines.forEach((Cuisine _f) {
       _f.selected = false;
     });

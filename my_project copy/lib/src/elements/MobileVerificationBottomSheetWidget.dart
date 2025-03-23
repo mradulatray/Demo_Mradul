@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:food_delivery_app/src/models/food.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -27,13 +28,13 @@ class MobileVerificationBottomSheetWidget extends StatefulWidget {
 
 class _MobileVerificationBottomSheetWidgetState
     extends StateMVC<MobileVerificationBottomSheetWidget> {
-  late UserController _con;
+  UserController? _con;
   _MobileVerificationBottomSheetWidgetState() : super(UserController()) {
     _con = controller as UserController;
   }
 
-  late String smsSent;
-  late String errorMessage;
+  String? smsSent;
+  String? errorMessage;
 
   @override
   void initState() {
@@ -151,11 +152,11 @@ class _MobileVerificationBottomSheetWidgetState
                 BlockButtonWidget(
                   //onPressed: () async {
                   onPressed: () {
-                    _con.user = widget.user;
-                    _con.user.otp = smsSent;
+                    _con?.user = widget.user;
+                    _con?.user.otp = smsSent;
                     //_con.verifyMobileOTP(_con.user);
                     //print(_con.user);
-                    _con.verifyMobileOTP(_con.user).then((value) {
+                    _con?.verifyMobileOTP((_con?.user ?? userModel.User())).then((value) {
                       if (value.success ?? false) {
                         //print("SuccessResultis==="+value.success.toString());
                         Fluttertoast.showToast(

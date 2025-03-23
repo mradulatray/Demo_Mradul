@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:food_delivery_app/src/models/food.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import '../models/setting.dart';
 import '../repository/settings_repository.dart' as settingsRepo;
@@ -21,7 +22,7 @@ class MenuNewWidget extends StatefulWidget {
   // final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
 
   //
-  MenuNewWidget({Key? key, this.parentScaffoldKey}) : super(key: key);
+  const MenuNewWidget({super.key, this.parentScaffoldKey});
   @override
   _MenuNewWidgetState createState() => _MenuNewWidgetState();
   // final RouteArgument routeArgument;
@@ -31,8 +32,8 @@ class MenuNewWidget extends StatefulWidget {
 }
 
 class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
-  late RestaurantController _con;
-  late List<String> selectedCategories;
+  RestaurantController? _con;
+  List<String>? selectedCategories;
 
   _MenuNewWidgetState() : super(RestaurantController()) {
     _con = controller as RestaurantController;
@@ -40,7 +41,7 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
 
   @override
   void initState() {
-    var newRest = new Restaurant();
+    var newRest = Restaurant();
 
     newRest.id = "12";
     newRest.name = "GO PRO SUPPLY";
@@ -49,22 +50,22 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
     newRest.deliveryFee = 40.0;
     newRest.distance = 0.0;
 
-    _con.restaurant = /* widget.routeArgument.param*/ newRest;
-    _con.listenForTrendingFoods(_con.restaurant.id ?? '');
-    _con.listenForCategories(_con.restaurant.id ?? '');
+    _con?.restaurant = /* widget.routeArgument.param*/ newRest;
+    _con?.listenForTrendingFoods(_con?.restaurant?.id ?? '');
+    _con?.listenForCategories(_con?.restaurant?.id ?? '');
     selectedCategories = ['0'];
-    _con.listenForFoods(_con.restaurant.id ?? '');
+    _con?.listenForFoods(_con?.restaurant?.id ?? '');
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       drawer: DrawerWidget(),
       appBar: AppBar(
-        leading: new IconButton(
-          icon: new Icon(Icons.sort, color: Theme.of(context).hintColor),
+        leading: IconButton(
+          icon: Icon(Icons.sort, color: Theme.of(context).hintColor),
           onPressed: () => widget.parentScaffoldKey?.currentState?.openDrawer(),
         ),
         automaticallyImplyLeading: false,
@@ -75,8 +76,7 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
             valueListenable: settingsRepo.setting,
             builder: (context, value, child) {
               return Text(
-                (value as Setting).appName ??
-                    S.of(context).home, // Safe null check
+                (value).appName ?? S.of(context).home, // Safe null check
                 style: Theme.of(context)
                     .textTheme
                     .headlineSmall
@@ -84,7 +84,7 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
               );
             }),
         actions: <Widget>[
-          new ShoppingCartButtonWidget(
+          ShoppingCartButtonWidget(
               iconColor: Theme.of(context).hintColor,
               labelColor: Theme.of(context).colorScheme.secondary),
         ],
@@ -142,7 +142,8 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
               ),
             ),
             FoodsCarouselWidget(
-                heroTag: 'menu_trending_food', foodsList: _con.trendingFoods),
+                heroTag: 'menu_trending_food',
+                foodsList: (_con?.trendingFoods ?? [])),
             ListTile(
               dense: true,
               contentPadding:
@@ -162,24 +163,25 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
                 style: Theme.of(context).textTheme.bodySmall,
               ),
             ),
-            _con.categories.isEmpty
+            (_con?.categories.isEmpty ?? false)
                 ? SizedBox(height: 90)
-                : Container(
+                : SizedBox(
                     height: 90,
                     child: ListView(
                       primary: false,
                       shrinkWrap: true,
                       scrollDirection: Axis.horizontal,
-                      children: List.generate(_con.categories.length, (index) {
-                        var _category = _con.categories.elementAt(index);
-                        var _selected =
-                            this.selectedCategories.contains(_category.id);
+                      children: List.generate((_con?.categories.length ?? 0),
+                          (index) {
+                        var category = _con?.categories.elementAt(index);
+                        var selected =
+                            selectedCategories?.contains(category?.id) ?? false;
                         return Padding(
                           padding: const EdgeInsetsDirectional.only(start: 20),
                           child: RawChip(
                             elevation: 0,
-                            label: Text(_category.name ?? ''),
-                            labelStyle: _selected
+                            label: Text(category?.name ?? ''),
+                            labelStyle: selected
                                 ? Theme.of(context).textTheme.bodyMedium?.merge(
                                     TextStyle(
                                         color: Theme.of(context).primaryColor))
@@ -190,17 +192,17 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
                                 Theme.of(context).focusColor.withOpacity(0.1),
                             selectedColor:
                                 Theme.of(context).colorScheme.secondary,
-                            selected: _selected,
+                            selected: selected,
                             //shape: StadiumBorder(side: BorderSide(color: Theme.of(context).focusColor.withOpacity(0.05))),
                             showCheckmark: false,
-                            avatar: (_category.id == '0')
+                            avatar: (category?.id == '0')
                                 ? null
-                                : ((_category.image?.url ?? '')
+                                : ((category?.image?.url ?? '')
                                         .toLowerCase()
                                         .endsWith('.svg')
                                     ? SvgPicture.network(
-                                        (_category.image?.url ?? ''),
-                                        color: _selected
+                                        (category?.image?.url ?? ''),
+                                        color: selected
                                             ? Theme.of(context).primaryColor
                                             : Theme.of(context)
                                                 .colorScheme
@@ -208,7 +210,7 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
                                       )
                                     : CachedNetworkImage(
                                         fit: BoxFit.cover,
-                                        imageUrl: _category.image?.icon ?? '',
+                                        imageUrl: category?.image?.icon ?? '',
                                         placeholder: (context, url) =>
                                             Image.asset(
                                           'assets/img/loading.gif',
@@ -219,22 +221,19 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
                                       )),
                             onSelected: (bool value) {
                               setState(() {
-                                if (_category.id == '0') {
-                                  this.selectedCategories = ['0'];
+                                if (category?.id == '0') {
+                                  selectedCategories = ['0'];
                                 } else {
-                                  this
-                                      .selectedCategories
-                                      .removeWhere((element) => element == '0');
+                                  selectedCategories?.removeWhere(
+                                      (element) => element == '0');
                                 }
                                 if (value) {
-                                  this
-                                      .selectedCategories
-                                      .add(_category.id ?? '');
+                                  selectedCategories?.add(category?.id ?? '');
                                 } else {
-                                  this.selectedCategories.removeWhere(
-                                      (element) => element == _category.id);
+                                  selectedCategories?.removeWhere(
+                                      (element) => element == category?.id);
                                 }
-                                _con.selectCategory(this.selectedCategories);
+                                _con?.selectCategory(selectedCategories ?? []);
                               });
                             },
                           ),
@@ -242,20 +241,20 @@ class _MenuNewWidgetState extends StateMVC<MenuNewWidget> {
                       }),
                     ),
                   ),
-            _con.foods.isEmpty
+            (_con?.foods.isEmpty ?? false)
                 ? CircularLoadingWidget(height: 250)
                 : ListView.separated(
                     scrollDirection: Axis.vertical,
                     shrinkWrap: true,
                     primary: false,
-                    itemCount: _con.foods.length,
+                    itemCount: (_con?.foods.length ?? 0),
                     separatorBuilder: (context, index) {
                       return SizedBox(height: 10);
                     },
                     itemBuilder: (context, index) {
                       return FoodItemWidget(
                         heroTag: 'menu_list',
-                        food: _con.foods.elementAt(index),
+                        food: (_con?.foods.elementAt(index) ?? Food()),
                       );
                     },
                   ),

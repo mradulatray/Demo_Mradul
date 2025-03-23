@@ -12,7 +12,7 @@ class LanguagesWidget extends StatefulWidget {
 }
 
 class _LanguagesWidgetState extends State<LanguagesWidget> {
-  late LanguagesList languagesList;
+  LanguagesList? languagesList;
 
   @override
   void initState() {
@@ -77,13 +77,13 @@ class _LanguagesWidgetState extends State<LanguagesWidget> {
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               primary: false,
-              itemCount: languagesList.languages?.length ?? 0,
+              itemCount: languagesList?.languages?.length ?? 0,
               separatorBuilder: (context, index) {
                 return SizedBox(height: 10);
               },
               itemBuilder: (context, index) {
                 Language _language =
-                    (languagesList.languages ?? []).elementAt(index);
+                    (languagesList?.languages ?? []).elementAt(index);
                 settingRepo
                     .getDefaultLanguage(settingRepo
                             .setting.value.mobileLanguage?.value.languageCode ??
@@ -105,7 +105,7 @@ class _LanguagesWidgetState extends State<LanguagesWidget> {
                       settingRepo.setting.value.mobileLanguage?.value =
                           new Locale(_lang.elementAt(0));
                     settingRepo.setting.notifyListeners();
-                    languagesList.languages?.forEach((_l) {
+                    languagesList?.languages?.forEach((_l) {
                       setState(() {
                         _l.selected = false;
                       });

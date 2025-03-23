@@ -16,14 +16,14 @@ class PayPalPaymentWidget extends StatefulWidget {
 }
 
 class _PayPalPaymentWidgetState extends StateMVC<PayPalPaymentWidget> {
-  late PayPalController _con;
+   PayPalController? _con;
   _PayPalPaymentWidgetState() : super(PayPalController()) {
     _con = controller as PayPalController;
   }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

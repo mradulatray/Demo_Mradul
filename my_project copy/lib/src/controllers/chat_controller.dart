@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/user.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -8,17 +9,23 @@ import '../models/conversation.dart';
 import '../repository/chat_repository.dart';
 import '../repository/notification_repository.dart';
 import '../repository/user_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class ChatController extends ControllerMVC {
-  late Conversation conversation;
+  Conversation? conversation;
   ChatRepository _chatRepository = ChatRepository();
-  late Stream<QuerySnapshot> conversations;
-  late Stream<QuerySnapshot> chats;
+  Stream<QuerySnapshot>? conversations;
+  Stream<QuerySnapshot>? chats;
   // GlobalKey<ScaffoldState> scaffoldKey;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
 //   ChatController() {
@@ -40,9 +47,10 @@ class ChatController extends ControllerMVC {
     setState(() {
       conversation = _conversation;
     });
-    _chatRepository.createConversation(conversation).then((value) {
-      listenForChats(conversation);
-    });
+    if(conversation!=null){
+    _chatRepository.createConversation(conversation!).then((value) {
+      listenForChats(conversation!);
+    });}
   }
 
   listenForConversations() async {
@@ -77,10 +85,10 @@ class ChatController extends ControllerMVC {
     _conversation.readByUsers = [currentUser.value.id ?? ''];
     _chatRepository.addMessage(_conversation, _chat).then((value) {
       _conversation.users?.forEach((_user) {
-        if (_user.id != currentUser.value.id) {
+        if (_user.id != currentUser.value.id && safeContext != null) {
           sendNotification(
               text,
-              S.of(safeContext).newMessageFrom +
+              S.of(safeContext!).newMessageFrom +
                   " " +
                   (currentUser.value.name ?? ''),
               _user);

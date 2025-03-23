@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/order.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -20,7 +21,7 @@ class ProfileWidget extends StatefulWidget {
 }
 
 class _ProfileWidgetState extends StateMVC<ProfileWidget> {
-  late ProfileController _con;
+   ProfileController? _con;
 
   _ProfileWidgetState() : super(ProfileController()) {
     _con = controller as ProfileController;
@@ -29,12 +30,12 @@ class _ProfileWidgetState extends StateMVC<ProfileWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       drawer: DrawerWidget(),
       appBar: AppBar(
         leading: new IconButton(
           icon: new Icon(Icons.sort, color: Theme.of(context).primaryColor),
-          onPressed: () => _con.scaffoldKey.currentState?.openDrawer(),
+          onPressed: () => _con?.scaffoldKey.currentState?.openDrawer(),
         ),
         automaticallyImplyLeading: false,
         backgroundColor: Theme.of(context).colorScheme.secondary,
@@ -91,15 +92,15 @@ class _ProfileWidgetState extends StateMVC<ProfileWidget> {
                           TextStyle(fontSize: 18),
                     ),
                   ),
-                  _con.recentOrders.isEmpty
+                  (_con?.recentOrders.isEmpty ?? false)
                       ? EmptyOrdersWidget()
                       : ListView.separated(
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
                           primary: false,
-                          itemCount: _con.recentOrders.length,
+                          itemCount: (_con?.recentOrders.length ?? 0),
                           itemBuilder: (context, index) {
-                            var _order = _con.recentOrders.elementAt(index);
+                            var _order = _con?.recentOrders.elementAt(index) ?? Order();
                             return OrderItemWidget(
                               expanded: index == 0 ? true : false,
                               order: _order,

@@ -8,16 +8,20 @@ import '../models/food.dart';
 import '../repository/cart_repository.dart';
 import '../repository/category_repository.dart';
 import '../repository/food_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class CategoryController extends ControllerMVC {
   List<Food> foods = <Food>[];
   // GlobalKey<ScaffoldState> scaffoldKey;
-  late Category category;
+  Category? category;
   bool loadCart = false;
   List<Cart> carts = [];
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // CategoryController() {
@@ -31,9 +35,9 @@ class CategoryController extends ControllerMVC {
         foods.add(_food);
       });
     }, onError: (a) {
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -54,9 +58,9 @@ class CategoryController extends ControllerMVC {
       setState(() => category = _category);
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -101,9 +105,9 @@ class CategoryController extends ControllerMVC {
         this.loadCart = false;
       });
     }).whenComplete(() {
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext!=null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).this_food_was_added_to_cart),
+          content: Text(S.of(safeContext!).this_food_was_added_to_cart),
         ));
       }
     });
@@ -117,9 +121,11 @@ class CategoryController extends ControllerMVC {
   Future<void> refreshCategory() async {
     foods.clear();
     category = new Category();
+    if (safeContext != null) {
     listenForFoodsByCategory(
-        message: S.of(safeContext).category_refreshed_successfuly);
+        message: S.of(safeContext!).category_refreshed_successfuly);
     listenForCategory(
-        message: S.of(safeContext).category_refreshed_successfuly);
+        message: S.of(safeContext!).category_refreshed_successfuly);
+    }
   }
 }

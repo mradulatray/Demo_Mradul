@@ -17,19 +17,20 @@ class HomeSliderWidget extends StatefulWidget {
   @override
   _HomeSliderWidgetState createState() => _HomeSliderWidgetState();
 
-  HomeSliderWidget({Key? key, required this.slides}) : super(key: key);
+  const HomeSliderWidget({super.key, required this.slides});
 }
 
 class _HomeSliderWidgetState extends State<HomeSliderWidget> {
   int _current = 0;
-  late AlignmentDirectional _alignmentDirectional;
+  AlignmentDirectional? _alignmentDirectional;
 
   @override
   Widget build(BuildContext context) {
     return widget.slides.isEmpty
         ? HomeSliderLoaderWidget()
         : Stack(
-            alignment: _alignmentDirectional,
+            alignment: _alignmentDirectional ?? Helper.getAlignmentDirectional(widget.slides.elementAt(0).textPosition ?? ""),
+
             fit: StackFit.passthrough,
             children: <Widget>[
               CarouselSlider(
@@ -89,7 +90,7 @@ class _HomeSliderWidgetState extends State<HomeSliderWidget> {
                               width: double.infinity,
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 20),
-                              child: Container(
+                              child: SizedBox(
                                 width: config.App(context).appWidth(40),
                                 child: Column(
                                   crossAxisAlignment:

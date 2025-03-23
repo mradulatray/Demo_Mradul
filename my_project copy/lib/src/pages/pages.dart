@@ -15,12 +15,12 @@ import 'new_menu_list.dart';
 // ignore: must_be_immutable
 class PagesWidget extends StatefulWidget {
   dynamic currentTab;
-  late RouteArgument routeArgument;
+  RouteArgument? routeArgument;
   Widget currentPage = HomeWidget();
-  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   PagesWidget({
-    Key? key,
+    super.key,
     this.currentTab,
   }) {
     if (currentTab != null) {
@@ -40,6 +40,7 @@ class PagesWidget extends StatefulWidget {
 }
 
 class _PagesWidgetState extends State<PagesWidget> {
+  @override
   initState() {
     super.initState();
     _selectTab(widget.currentTab);
@@ -105,7 +106,7 @@ class _PagesWidgetState extends State<PagesWidget> {
           unselectedItemColor: Theme.of(context).focusColor.withOpacity(1),
           currentIndex: widget.currentTab,
           onTap: (int i) {
-            this._selectTab(i);
+            _selectTab(i);
           },
           // this will be set when a new tab is tapped
           items: [
@@ -144,11 +145,11 @@ class _PagesWidgetState extends State<PagesWidget> {
                           offset: Offset(0, 3))
                     ],
                   ),
-                  child: new Icon(Icons.home,
-                      color: Theme.of(context).primaryColor),
+                  child:
+                      Icon(Icons.home, color: Theme.of(context).primaryColor),
                 )),
             BottomNavigationBarItem(
-              icon: new Icon(Icons.local_mall),
+              icon: Icon(Icons.local_mall),
               label: '',
             ),
             /*    BottomNavigationBarItem(

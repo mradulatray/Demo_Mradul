@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/food.dart';
+import 'package:food_delivery_app/src/models/restaurant.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -11,14 +13,14 @@ import '../models/route_argument.dart';
 class SearchResultWidget extends StatefulWidget {
   final String heroTag;
 
-  SearchResultWidget({Key? key, required this.heroTag}) : super(key: key);
+  const SearchResultWidget({super.key, required this.heroTag});
 
   @override
   _SearchResultWidgetState createState() => _SearchResultWidgetState();
 }
 
 class _SearchResultWidgetState extends StateMVC<SearchResultWidget> {
-  late custom.SearchController _con;
+  custom.SearchController? _con;
 
   _SearchResultWidgetState() : super(custom.SearchController()) {
     _con = controller as custom.SearchController;
@@ -63,8 +65,8 @@ class _SearchResultWidgetState extends StateMVC<SearchResultWidget> {
             padding: const EdgeInsets.all(20),
             child: TextField(
               onSubmitted: (text) async {
-                await _con.refreshSearch(text);
-                _con.saveSearch(text);
+                await _con?.refreshSearch(text);
+                _con?.saveSearch(text);
               },
               autofocus: true,
               decoration: InputDecoration(
@@ -87,7 +89,7 @@ class _SearchResultWidgetState extends StateMVC<SearchResultWidget> {
               ),
             ),
           ),
-          _con.restaurants.isEmpty && _con.foods.isEmpty
+          ((_con?.restaurants.isEmpty ?? true) && (_con?.foods.isEmpty ?? true))
               ? CircularLoadingWidget(height: 288)
               : Expanded(
                   child: ListView(
@@ -107,14 +109,14 @@ class _SearchResultWidgetState extends StateMVC<SearchResultWidget> {
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         primary: false,
-                        itemCount: _con.foods.length,
+                        itemCount: (_con?.foods.length ?? 0),
                         separatorBuilder: (context, index) {
                           return SizedBox(height: 10);
                         },
                         itemBuilder: (context, index) {
                           return FoodItemWidget(
                             heroTag: 'search_list',
-                            food: _con.foods.elementAt(index),
+                            food: (_con?.foods.elementAt(index) ?? Food()),
                           );
                         },
                       ),
@@ -133,19 +135,19 @@ class _SearchResultWidgetState extends StateMVC<SearchResultWidget> {
                       ListView.builder(
                         shrinkWrap: true,
                         primary: false,
-                        itemCount: _con.restaurants.length,
+                        itemCount: _con?.restaurants.length,
                         itemBuilder: (context, index) {
                           return GestureDetector(
                             onTap: () {
                               Navigator.of(context).pushNamed('/Details',
                                   arguments: RouteArgument(
                                     id: '0',
-                                    param: _con.restaurants.elementAt(index).id,
+                                    param: _con?.restaurants.elementAt(index).id,
                                     heroTag: widget.heroTag,
                                   ));
                             },
                             child: CardWidget(
-                                restaurant: _con.restaurants.elementAt(index),
+                                restaurant: (_con?.restaurants.elementAt(index) ?? Restaurant()),
                                 heroTag: widget.heroTag),
                           );
                         },

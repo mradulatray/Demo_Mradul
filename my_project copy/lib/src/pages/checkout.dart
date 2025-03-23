@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/credit_card.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +21,7 @@ class CheckoutWidget extends StatefulWidget {
 }
 
 class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
-  late CheckoutController _con;
+   CheckoutController? _con;
 
   _CheckoutWidgetState() : super(CheckoutController()) {
     _con = controller as CheckoutController;
@@ -28,7 +29,7 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
 
   @override
   void initState() {
-    _con.listenForCarts();
+    _con?.listenForCarts();
     super.initState();
   }
 
@@ -41,7 +42,7 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
       //debugPrint("ppttrr " + getPayment);
     });
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -53,7 +54,7 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
               .merge(TextStyle(letterSpacing: 1.3)),
         ),
       ),
-      body: _con.carts.isEmpty
+      body: (_con?.carts.isEmpty ?? false)
           ? CircularLoadingWidget(height: 400)
           : Stack(
               fit: StackFit.expand,
@@ -91,9 +92,9 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
                         ),
                         SizedBox(height: 20),
                         new CreditCardsWidget(
-                            creditCard: _con.creditCard,
+                            creditCard: (_con?.creditCard ?? CreditCard()),
                             onChanged: (creditCard) {
-                              _con.updateCreditCard(creditCard);
+                              _con?.updateCreditCard(creditCard);
                             }),
                         SizedBox(height: 40),
                         (setting.value.payPalEnabled ?? false)
@@ -167,7 +168,7 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
                                   style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                               ),
-                              Helper.getPriceNew(_con.subTotal, context,
+                              Helper.getPriceNew(_con?.subTotal ?? 0, context,
                                   style:
                                       Theme.of(context).textTheme.titleMedium ??
                                           TextStyle(fontSize: 16))
@@ -185,7 +186,7 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
                               if (/*Helper.canDeliveryNew(_con.carts[0].food.restaurant,deliveryType) &&*/ deliveryType ==
                                   '/PaymentMethod')
                                 Helper.getPriceNew(
-                                    (_con.carts[0].food?.restaurant
+                                    (_con?.carts[0].food?.restaurant
                                             ?.deliveryFee ??
                                         0),
                                     context,
@@ -224,11 +225,11 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
                             children: <Widget>[
                               Expanded(
                                 child: Text(
-                                  "${S.of(context).tax} (${_con.carts[0].food?.restaurant?.defaultTax}%)",
+                                  "${S.of(context).tax} (${_con?.carts[0].food?.restaurant?.defaultTax}%)",
                                   style: Theme.of(context).textTheme.bodyLarge,
                                 ),
                               ),
-                              Helper.getPrice(_con.taxAmount, context,
+                              Helper.getPrice(_con?.taxAmount ?? 0, context,
                                   style:
                                       Theme.of(context).textTheme.titleMedium ??
                                           TextStyle(fontSize: 16))
@@ -244,7 +245,7 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
                                       Theme.of(context).textTheme.headlineSmall,
                                 ),
                               ),
-                              Helper.getPrice(_con.total, context,
+                              Helper.getPrice(_con?.total ?? 0, context,
                                   style: Theme.of(context)
                                           .textTheme
                                           .headlineSmall ??
@@ -259,16 +260,16 @@ class _CheckoutWidgetState extends StateMVC<CheckoutWidget> {
                               focusElevation: 0,
                               highlightElevation: 0,
                               onPressed: () {
-                                if (_con.creditCard.validated()) {
+                                if (_con?.creditCard.validated() ?? false) {
                                   Navigator.of(context).pushNamed(
                                       '/OrderSuccess',
                                       arguments: new RouteArgument(
                                           param:
                                               'Credit Card (Stripe Gateway)'));
                                 } else {
-                                  if (_con.scaffoldKey.currentContext != null) {
+                                  if (_con?.scaffoldKey.currentContext != null) {
                                     ScaffoldMessenger.of(
-                                            _con.scaffoldKey.currentContext!)
+                                            _con!.scaffoldKey.currentContext!)
                                         .showSnackBar(SnackBar(
                                       content: Text(S
                                           .of(context)

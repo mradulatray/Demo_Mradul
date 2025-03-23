@@ -15,7 +15,7 @@ class HelpWidget extends StatefulWidget {
 }
 
 class _HelpWidgetState extends StateMVC<HelpWidget> {
-  late FaqController _con;
+  FaqController? _con;
 
   _HelpWidgetState() : super(FaqController()) {
     _con = controller as FaqController;
@@ -23,12 +23,12 @@ class _HelpWidgetState extends StateMVC<HelpWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _con.faqs.isEmpty
+    return (_con?.faqs.isEmpty ?? false)
         ? CircularLoadingWidget(height: 500)
         : DefaultTabController(
-            length: _con.faqs.length,
+            length: (_con?.faqs.length ?? 0),
             child: Scaffold(
-              key: _con.scaffoldKey,
+              key: _con?.scaffoldKey,
               drawer: DrawerWidget(),
               appBar: AppBar(
                 backgroundColor: Theme.of(context).focusColor,
@@ -36,8 +36,8 @@ class _HelpWidgetState extends StateMVC<HelpWidget> {
                 centerTitle: true,
                 iconTheme: IconThemeData(color: Theme.of(context).primaryColor),
                 bottom: TabBar(
-                  tabs: List.generate(_con.faqs.length, (index) {
-                    return Tab(text: _con.faqs.elementAt(index).name ?? '');
+                  tabs: List.generate((_con?.faqs.length ?? 0), (index) {
+                    return Tab(text: _con?.faqs.elementAt(index).name ?? '');
                   }),
                   labelColor: Theme.of(context).primaryColor,
                 ),
@@ -55,9 +55,9 @@ class _HelpWidgetState extends StateMVC<HelpWidget> {
                 ],
               ),
               body: RefreshIndicator(
-                onRefresh: _con.refreshFaqs,
+                onRefresh: _con?.refreshFaqs ?? () async {},
                 child: TabBarView(
-                  children: List.generate(_con.faqs.length, (index) {
+                  children: List.generate((_con?.faqs.length ?? 0), (index) {
                     return SingleChildScrollView(
                       padding:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 25),
@@ -91,13 +91,13 @@ class _HelpWidgetState extends StateMVC<HelpWidget> {
                             shrinkWrap: true,
                             primary: false,
                             itemCount:
-                                _con.faqs.elementAt(index).faqs?.length ?? 0,
+                                _con?.faqs.elementAt(index).faqs?.length ?? 0,
                             separatorBuilder: (context, index) {
                               return SizedBox(height: 15);
                             },
                             itemBuilder: (context, indexFaq) {
                               return FaqItemWidget(
-                                  faq: (_con.faqs.elementAt(index).faqs ?? [])
+                                  faq: (_con?.faqs.elementAt(index).faqs ?? [])
                                       .elementAt(indexFaq));
                             },
                           ),

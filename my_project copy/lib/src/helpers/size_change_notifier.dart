@@ -58,7 +58,7 @@ class _SizeChangeRenderWithCallback extends RenderProxyBox {
 
   final SizeChangedCallBack onLayoutChangedCallback;
 
-  late Size _oldSize;
+  Size? _oldSize;
 
   @override
   void performLayout() {

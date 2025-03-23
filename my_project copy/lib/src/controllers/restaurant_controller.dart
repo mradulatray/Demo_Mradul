@@ -14,9 +14,10 @@ import '../repository/food_repository.dart';
 import '../repository/gallery_repository.dart';
 import '../repository/restaurant_repository.dart';
 import '../repository/settings_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class RestaurantController extends ControllerMVC {
-  late Restaurant restaurant;
+  Restaurant? restaurant;
   List<Gallery> galleries = <Gallery>[];
   List<Food> foods = <Food>[];
   List<Category> categories = <Category>[];
@@ -25,8 +26,13 @@ class RestaurantController extends ControllerMVC {
   List<Review> reviews = <Review>[];
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // RestaurantController() {
@@ -34,17 +40,17 @@ class RestaurantController extends ControllerMVC {
   // }
 
   Future<dynamic> listenForRestaurant({String? id, String? message}) async {
-    final whenDone = new Completer();
+    final whenDone = Completer();
     final Stream<Restaurant> stream =
         await getRestaurant(id ?? '', deliveryAddress.value);
-    stream.listen((Restaurant _restaurant) {
-      setState(() => restaurant = _restaurant);
-      return whenDone.complete(_restaurant);
+    stream.listen((Restaurant restaurant) {
+      setState(() => restaurant = restaurant);
+      return whenDone.complete(restaurant);
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
       return whenDone.complete(Restaurant.fromJSON({}));
@@ -64,35 +70,36 @@ class RestaurantController extends ControllerMVC {
 
   void listenForGalleries(String idRestaurant) async {
     final Stream<Gallery> stream = await getGalleries(idRestaurant);
-    stream.listen((Gallery _gallery) {
-      setState(() => galleries.add(_gallery));
+    stream.listen((Gallery gallery) {
+      setState(() => galleries.add(gallery));
     }, onError: (a) {}, onDone: () {});
   }
 
   void listenForRestaurantReviews({String? id, String? message}) async {
     final Stream<Review> stream = await getRestaurantReviews(id ?? '');
-    stream.listen((Review _review) {
-      setState(() => reviews.add(_review));
+    stream.listen((Review review) {
+      setState(() => reviews.add(review));
     }, onError: (a) {}, onDone: () {});
   }
 
   void listenForFoods(String idRestaurant, {List<String>? categoriesId}) async {
     final Stream<Food> stream = await getFoodsOfRestaurant(idRestaurant,
         categories: categoriesId ?? []);
-    stream.listen((Food _food) {
-      setState(() => foods.add(_food));
+    stream.listen((Food food) {
+      setState(() => foods.add(food));
     }, onError: (a) {
       print(a);
     }, onDone: () {
-      restaurant..name = foods.elementAt(0).restaurant?.name ?? '';
+      restaurant?.name =
+          foods.isEmpty ? "" : foods.elementAt(0).restaurant?.name ?? '';
     });
   }
 
   void listenForTrendingFoods(String idRestaurant) async {
     final Stream<Food> stream =
         await getTrendingFoodsOfRestaurant(idRestaurant);
-    stream.listen((Food _food) {
-      setState(() => trendingFoods.add(_food));
+    stream.listen((Food food) {
+      setState(() => trendingFoods.add(food));
     }, onError: (a) {
       print(a);
     }, onDone: () {});
@@ -101,8 +108,8 @@ class RestaurantController extends ControllerMVC {
   void listenForFeaturedFoods(String idRestaurant) async {
     final Stream<Food> stream =
         await getFeaturedFoodsOfRestaurant(idRestaurant);
-    stream.listen((Food _food) {
-      setState(() => featuredFoods.add(_food));
+    stream.listen((Food food) {
+      setState(() => featuredFoods.add(food));
     }, onError: (a) {
       print(a);
     }, onDone: () {});
@@ -111,31 +118,35 @@ class RestaurantController extends ControllerMVC {
   Future<void> listenForCategories(String restaurantId) async {
     final Stream<Category> stream =
         await getCategoriesOfRestaurant(restaurantId);
-    stream.listen((Category _category) {
-      setState(() => categories.add(_category));
+    stream.listen((Category category) {
+      setState(() => categories.add(category));
     }, onError: (a) {
       print(a);
     }, onDone: () {
-      categories.insert(
-          0, new Category.fromJSON({'id': '0', 'name': S.of(safeContext).all}));
+      if (safeContext != null) {
+        categories.insert(
+            0, Category.fromJSON({'id': '0', 'name': S.of(safeContext!).all}));
+      }
     });
   }
 
   Future<void> selectCategory(List<String> categoriesId) async {
     foods.clear();
-    listenForFoods(restaurant.id ?? '', categoriesId: categoriesId);
+    listenForFoods(restaurant?.id ?? '', categoriesId: categoriesId);
   }
 
   Future<void> refreshRestaurant() async {
-    var _id = restaurant.id;
-    restaurant = new Restaurant();
+    var id = restaurant?.id;
+    restaurant = Restaurant();
     galleries.clear();
     reviews.clear();
     featuredFoods.clear();
-    listenForRestaurant(
-        id: _id, message: S.of(safeContext).restaurant_refreshed_successfuly);
-    listenForRestaurantReviews(id: _id);
-    listenForGalleries(_id ?? '');
-    listenForFeaturedFoods(_id ?? '');
+    if (safeContext != null) {
+      listenForRestaurant(
+          id: id, message: S.of(safeContext!).restaurant_refreshed_successfuly);
+    }
+    listenForRestaurantReviews(id: id);
+    listenForGalleries(id ?? '');
+    listenForFeaturedFoods(id ?? '');
   }
 }

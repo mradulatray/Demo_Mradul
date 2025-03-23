@@ -19,46 +19,48 @@ class ExtraItemWidget extends StatefulWidget {
 
 class _ExtraItemWidgetState extends State<ExtraItemWidget>
     with SingleTickerProviderStateMixin {
-  late Animation animation;
-  late AnimationController animationController;
-  late Animation<double> sizeCheckAnimation;
-  late Animation<double> rotateCheckAnimation;
-  late Animation<double> opacityAnimation;
-  late Animation opacityCheckAnimation;
+  Animation? animation;
+  AnimationController? animationController;
+  Animation<double>? sizeCheckAnimation;
+  Animation<double>? rotateCheckAnimation;
+  Animation<double>? opacityAnimation;
+  Animation? opacityCheckAnimation;
 
   @override
   void initState() {
     super.initState();
     animationController =
         AnimationController(duration: Duration(milliseconds: 350), vsync: this);
-    CurvedAnimation curve =
-        CurvedAnimation(parent: animationController, curve: Curves.easeOut);
-    animation = Tween(begin: 0.0, end: 60.0).animate(curve)
-      ..addListener(() {
-        setState(() {});
-      });
-    opacityAnimation = Tween(begin: 0.0, end: 0.5).animate(curve)
-      ..addListener(() {
-        setState(() {});
-      });
-    opacityCheckAnimation = Tween(begin: 0.0, end: 1.0).animate(curve)
-      ..addListener(() {
-        setState(() {});
-      });
-    rotateCheckAnimation = Tween(begin: 2.0, end: 0.0).animate(curve)
-      ..addListener(() {
-        setState(() {});
-      });
-    sizeCheckAnimation = Tween<double>(begin: 0, end: 36).animate(curve)
-      ..addListener(() {
-        setState(() {});
-      });
+    if (animationController != null) {
+      CurvedAnimation curve =
+          CurvedAnimation(parent: animationController!, curve: Curves.easeOut);
+      animation = Tween(begin: 0.0, end: 60.0).animate(curve)
+        ..addListener(() {
+          setState(() {});
+        });
+      opacityAnimation = Tween(begin: 0.0, end: 0.5).animate(curve)
+        ..addListener(() {
+          setState(() {});
+        });
+      opacityCheckAnimation = Tween(begin: 0.0, end: 1.0).animate(curve)
+        ..addListener(() {
+          setState(() {});
+        });
+      rotateCheckAnimation = Tween(begin: 2.0, end: 0.0).animate(curve)
+        ..addListener(() {
+          setState(() {});
+        });
+      sizeCheckAnimation = Tween<double>(begin: 0, end: 36).animate(curve)
+        ..addListener(() {
+          setState(() {});
+        });
+    }
   }
 
   @override
   void dispose() {
     super.dispose();
-    animationController.dispose();
+    animationController?.dispose();
   }
 
   @override
@@ -66,9 +68,9 @@ class _ExtraItemWidgetState extends State<ExtraItemWidget>
     return InkWell(
       onTap: () {
         if (widget.extra?.checked ?? false) {
-          animationController.reverse();
+          animationController?.reverse();
         } else {
-          animationController.forward();
+          animationController?.forward();
         }
         widget.extra?.checked = !(widget.extra?.checked ?? true);
         if (widget.onChanged != null) {
@@ -92,23 +94,23 @@ class _ExtraItemWidgetState extends State<ExtraItemWidget>
                 ),
               ),
               Container(
-                height: animation.value,
-                width: animation.value,
+                height: animation?.value,
+                width: animation?.value,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(Radius.circular(60)),
                   color: Theme.of(context)
                       .colorScheme
                       .secondary
-                      .withOpacity(opacityAnimation.value),
+                      .withOpacity(opacityAnimation?.value ?? 0),
                 ),
                 child: Transform.rotate(
-                  angle: rotateCheckAnimation.value,
+                  angle: rotateCheckAnimation?.value ?? 0,
                   child: Icon(
                     Icons.check,
-                    size: sizeCheckAnimation.value,
+                    size: sizeCheckAnimation?.value,
                     color: Theme.of(context)
                         .primaryColor
-                        .withOpacity(opacityCheckAnimation.value),
+                        .withOpacity(opacityCheckAnimation?.value),
                   ),
                 ),
               ),

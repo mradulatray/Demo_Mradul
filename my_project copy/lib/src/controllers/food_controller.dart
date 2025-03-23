@@ -8,18 +8,25 @@ import '../models/favorite.dart';
 import '../models/food.dart';
 import '../repository/cart_repository.dart';
 import '../repository/food_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class FoodController extends ControllerMVC {
-  late Food food;
+  Food? food;
   double quantity = 1;
   double total = 0;
   List<Cart> carts = [];
-  late Favorite favorite;
+  Favorite? favorite;
   bool loadCart = false;
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // FoodController() {
@@ -32,9 +39,9 @@ class FoodController extends ControllerMVC {
       setState(() => food = _food);
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext!=null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -90,9 +97,9 @@ class FoodController extends ControllerMVC {
         this.loadCart = false;
       });
     }).whenComplete(() {
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).this_food_was_added_to_cart),
+          content: Text(S.of(safeContext!).this_food_was_added_to_cart),
         ));
       }
     });
@@ -113,9 +120,9 @@ class FoodController extends ControllerMVC {
       setState(() {
         this.favorite = value;
       });
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).thisFoodWasAddedToFavorite),
+          content: Text(S.of(safeContext!).thisFoodWasAddedToFavorite),
         ));
       }
     });
@@ -126,25 +133,26 @@ class FoodController extends ControllerMVC {
       setState(() {
         this.favorite = new Favorite();
       });
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).thisFoodWasRemovedFromFavorites),
+          content: Text(S.of(safeContext!).thisFoodWasRemovedFromFavorites),
         ));
       }
     });
   }
 
   Future<void> refreshFood() async {
-    var _id = food.id;
+    var _id = food?.id;
     food = new Food();
     listenForFavorite(foodId: _id);
+    if(safeContext!=null){
     listenForFood(
-        foodId: _id, message: S.of(safeContext).foodRefreshedSuccessfuly);
+        foodId: _id, message: S.of(safeContext!).foodRefreshedSuccessfuly);}
   }
 
   void calculateTotal() {
-    total = food.price ?? 0;
-    food.extras?.forEach((extra) {
+    total = food?.price ?? 0;
+    food?.extras?.forEach((extra) {
       total = total + ((extra.checked ?? false) ? (extra.price ?? 0) : 0);
     });
     total *= quantity;

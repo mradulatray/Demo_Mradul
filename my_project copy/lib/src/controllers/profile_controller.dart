@@ -3,13 +3,19 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 import '../../generated/l10n.dart';
 import '../models/order.dart';
 import '../repository/order_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class ProfileController extends ControllerMVC {
   List<Order> recentOrders = [];
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // ProfileController() {
@@ -32,9 +38,9 @@ class ProfileController extends ControllerMVC {
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -51,7 +57,9 @@ class ProfileController extends ControllerMVC {
 
   Future<void> refreshProfile() async {
     recentOrders.clear();
-    listenForRecentOrders(
-        message: S.of(safeContext).orders_refreshed_successfuly);
+    if (safeContext != null) {
+      listenForRecentOrders(
+          message: S.of(safeContext!).orders_refreshed_successfuly);
+    }
   }
 }

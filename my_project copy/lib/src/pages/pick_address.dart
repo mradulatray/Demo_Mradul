@@ -18,7 +18,7 @@ class PickAddressWidget extends StatefulWidget {
 }
 
 class _PickAddressWidgetState extends StateMVC<PickAddressWidget> {
-  late DeliveryAddressesController _con;
+  DeliveryAddressesController? _con;
 
   _PickAddressWidgetState() : super(DeliveryAddressesController()) {
     _con = controller as DeliveryAddressesController;

@@ -98,7 +98,7 @@ Future<Stream<OrderStatus>> getOrderStatus() async {
   });
 }
 
-Future<Order> addOrder(Order order, Payment payment) async {
+Future<Order> addOrder(Order order, Payment? payment) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
   User _user = userRepo.currentUser.value;
   if (_user.apiToken == null) {

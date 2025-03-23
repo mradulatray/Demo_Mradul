@@ -12,11 +12,16 @@ import 'cart_controller.dart';
 
 class DeliveryPickupController extends CartController {
   // GlobalKey<ScaffoldState> scaffoldKey;
-  late model.Address deliveryAddress;
-  late PaymentMethodList list;
+  model.Address? deliveryAddress;
+  PaymentMethodList? list;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
   // DeliveryPickupController() {
   //   this.scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -47,9 +52,9 @@ class DeliveryPickupController extends CartController {
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext!=null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -70,9 +75,9 @@ class DeliveryPickupController extends CartController {
         this.deliveryAddress = value;
       });
     }).whenComplete(() {
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).new_address_added_successfully),
+          content: Text(S.of(safeContext!).new_address_added_successfully),
         ));
       }
     });
@@ -85,9 +90,9 @@ class DeliveryPickupController extends CartController {
         this.deliveryAddress = value;
       });
     }).whenComplete(() {
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).the_address_updated_successfully),
+          content: Text(S.of(safeContext!).the_address_updated_successfully),
         ));
       }
     });
@@ -95,13 +100,13 @@ class DeliveryPickupController extends CartController {
 
 //need to change for payment methods check.
   PaymentMethod? getPickUpMethod() {
-    return list.pickupList?.elementAt(0);
+    return list?.pickupList?.elementAt(0);
   }
 
   // PaymentMethod
 
   getDeliveryMethod() {
-    return list.pickupList?.elementAt(1);
+    return list?.pickupList?.elementAt(1);
   }
 
   void toggleDelivery() {
@@ -109,7 +114,7 @@ class DeliveryPickupController extends CartController {
     deletePref("payment_type");
     saveStringToSharedPreferences("payment_type", "NO_DELIVERY_FEE");
     // Helper.canDeliveryNew();
-    list.pickupList?.forEach((element) {
+    list?.pickupList?.forEach((element) {
       if (element != getDeliveryMethod()) {
         element.selected = false;
       }
@@ -123,7 +128,7 @@ class DeliveryPickupController extends CartController {
     calculateSubtotal("Free");
     deletePref("payment_type");
     saveStringToSharedPreferences("payment_type", "DELIVERY_FEE");
-    list.pickupList?.forEach((element) {
+    list?.pickupList?.forEach((element) {
       if (element != getPickUpMethod()) {
         element.selected = false;
       }
@@ -147,7 +152,7 @@ class DeliveryPickupController extends CartController {
   //
   // }
   PaymentMethod? getSelectedMethod() {
-    return list.pickupList?.firstWhere(
+    return list?.pickupList?.firstWhere(
       (element) => element.selected,
       orElse: () => PaymentMethod(
           '', '', '', '', ''), // Return null if no element is found

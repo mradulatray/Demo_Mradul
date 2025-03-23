@@ -4,13 +4,19 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 import '../../generated/l10n.dart';
 import '../models/order.dart';
 import '../repository/order_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class OrderController extends ControllerMVC {
   List<Order> orders = <Order>[];
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // OrderController() {
@@ -26,15 +32,15 @@ class OrderController extends ControllerMVC {
 
   void listenForOrders({String? message}) async {
     final Stream<Order> stream = await getOrders();
-    stream.listen((Order _order) {
+    stream.listen((Order order) {
       setState(() {
-        orders.add(_order);
+        orders.add(order);
       });
     }, onError: (e) {
       print(e);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -62,10 +68,10 @@ class OrderController extends ControllerMVC {
       }
     }).whenComplete(() {
       //refreshOrders();
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
           content: Text(S
-              .of(safeContext)
+              .of(safeContext!)
               .orderThisorderidHasBeenCanceled(order.id ?? "")),
         ));
       }
@@ -74,6 +80,8 @@ class OrderController extends ControllerMVC {
 
   Future<void> refreshOrders() async {
     orders.clear();
-    listenForOrders(message: S.of(safeContext).order_refreshed_successfuly);
+    if (safeContext != null) {
+      listenForOrders(message: S.of(safeContext!).order_refreshed_successfuly);
+    }
   }
 }

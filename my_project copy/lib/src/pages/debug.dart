@@ -18,7 +18,7 @@ class DebugWidget extends StatefulWidget {
 }
 
 class _DebugWidgetState extends StateMVC<DebugWidget> {
-  late FavoriteController _con;
+  FavoriteController? _con;
 
   _DebugWidgetState() : super(FavoriteController()) {
     _con = controller as FavoriteController;
@@ -33,7 +33,7 @@ class _DebugWidgetState extends StateMVC<DebugWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -54,21 +54,21 @@ class _DebugWidgetState extends StateMVC<DebugWidget> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         body: RefreshIndicator(
-          onRefresh: _con.refreshFavorites,
-          child: _con.favorites.isEmpty
+          onRefresh: _con?.refreshFavorites ?? () async {},
+          child:( _con?.favorites.isEmpty ?? false)
               ? CircularLoadingWidget(height: 500)
               : ListView.separated(
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   primary: false,
-                  itemCount: _con.favorites.length,
+                  itemCount: (_con?.favorites.length ?? 0),
                   separatorBuilder: (context, index) {
                     return SizedBox(height: 10);
                   },
                   itemBuilder: (context, index) {
                     return ListTile(
                       title: Text(
-                          (_con.favorites.elementAt(index).food?.name ?? '')),
+                          (_con?.favorites.elementAt(index).food?.name ?? '')),
                     );
                   },
                 ),

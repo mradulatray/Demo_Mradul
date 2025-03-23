@@ -11,11 +11,16 @@ import '../repository/user_repository.dart' as userRepo;
 class DeliveryAddressesController extends ControllerMVC with ChangeNotifier {
   List<model.Address> addresses = <model.Address>[];
   // GlobalKey<ScaffoldState> scaffoldKey;
-  late Cart cart;
+  Cart? cart;
 
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // DeliveryAddressesController() {
@@ -40,9 +45,9 @@ class DeliveryAddressesController extends ControllerMVC with ChangeNotifier {
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -66,8 +71,9 @@ class DeliveryAddressesController extends ControllerMVC with ChangeNotifier {
 
   Future<void> refreshAddresses() async {
     addresses.clear();
+    if(safeContext!=null){
     listenForAddresses(
-        message: S.of(safeContext).addresses_refreshed_successfuly);
+        message: S.of(safeContext!).addresses_refreshed_successfuly);}
   }
 
   Future<void> changeDeliveryAddress(model.Address address) async {
@@ -91,9 +97,9 @@ class DeliveryAddressesController extends ControllerMVC with ChangeNotifier {
       setState(() {
         this.addresses.insert(0, value);
       });
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).new_address_added_successfully),
+          content: Text(S.of(safeContext!).new_address_added_successfully),
         ));
       }
     });
@@ -110,8 +116,9 @@ class DeliveryAddressesController extends ControllerMVC with ChangeNotifier {
     userRepo.updateAddress(address).then((value) {
       setState(() {});
       addresses.clear();
+      if(safeContext!=null){
       listenForAddresses(
-          message: S.of(safeContext).the_address_updated_successfully);
+          message: S.of(safeContext!).the_address_updated_successfully);}
     });
   }
 
@@ -120,10 +127,10 @@ class DeliveryAddressesController extends ControllerMVC with ChangeNotifier {
       setState(() {
         this.addresses.remove(address);
       });
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext!=null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
           content:
-              Text(S.of(safeContext).delivery_address_removed_successfully),
+              Text(S.of(safeContext!).delivery_address_removed_successfully),
         ));
       }
     });

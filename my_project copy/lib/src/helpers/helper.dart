@@ -27,9 +27,8 @@ import 'custom_trace.dart';
 
 class Helper {
   late BuildContext context;
-  late DateTime currentBackPressTime;
-
-  Helper.of(BuildContext _context) {
+  DateTime currentBackPressTime = DateTime.now(); // Constructor initialization
+  Helper.of( BuildContext _context) {
     this.context = _context;
   }
 

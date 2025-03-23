@@ -28,7 +28,7 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
   // TODO add layout in configuration file
   String layout = 'grid';
 
-  late CategoryController _con;
+  CategoryController? _con;
 
   _CategoryWidgetState() : super(CategoryController()) {
     _con = controller as CategoryController;
@@ -36,16 +36,16 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
 
   @override
   void initState() {
-    _con.listenForFoodsByCategory(id: widget.routeArgument.id);
-    _con.listenForCategory(id: widget.routeArgument.id);
-    _con.listenForCart();
+    _con?.listenForFoodsByCategory(id: widget.routeArgument.id);
+    _con?.listenForCategory(id: widget.routeArgument.id);
+    _con?.listenForCart();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       drawer: DrawerWidget(),
       endDrawer: FilterWidget(onFilter: (filter) {
         Navigator.of(context).pushReplacementNamed('/Category',
@@ -54,7 +54,7 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
       appBar: AppBar(
         leading: new IconButton(
           icon: new Icon(Icons.sort, color: Theme.of(context).hintColor),
-          onPressed: () => _con.scaffoldKey.currentState?.openDrawer(),
+          onPressed: () => _con?.scaffoldKey.currentState?.openDrawer(),
         ),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.transparent,
@@ -68,7 +68,7 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
               ?.merge(TextStyle(letterSpacing: 0)),
         ),
         actions: <Widget>[
-          _con.loadCart
+          (_con?.loadCart ?? false)
               ? Padding(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 22.5, vertical: 15),
@@ -85,7 +85,7 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: _con.refreshCategory,
+        onRefresh: (_con?.refreshCategory ?? () async {}),
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 10),
           child: Column(
@@ -96,7 +96,7 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: SearchBarWidget(onClickFilter: (filter) {
-                  _con.scaffoldKey.currentState?.openEndDrawer();
+                  _con?.scaffoldKey.currentState?.openEndDrawer();
                 }),
               ),
               SizedBox(height: 10),
@@ -109,7 +109,7 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
                     color: Theme.of(context).hintColor,
                   ),
                   title: Text(
-                    _con.category.name ?? '',
+                    _con?.category?.name ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.headlineLarge ??
@@ -148,7 +148,7 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
                   ),
                 ),
               ),
-              _con.foods.isEmpty
+              (_con?.foods.isEmpty ?? false)
                   ? CircularLoadingWidget(height: 500)
                   : Offstage(
                       offstage: this.layout != 'list',
@@ -156,19 +156,19 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
                         scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         primary: false,
-                        itemCount: _con.foods.length,
+                        itemCount: (_con?.foods.length ?? 0) ,
                         separatorBuilder: (context, index) {
                           return SizedBox(height: 10);
                         },
                         itemBuilder: (context, index) {
                           return FoodListItemWidget(
                             heroTag: 'favorites_list',
-                            food: _con.foods.elementAt(index),
+                            food: (_con?.foods.elementAt(index) ?? Food()),
                           );
                         },
                       ),
                     ),
-              _con.foods.isEmpty
+              (_con?.foods.isEmpty ?? false)
                   ? CircularLoadingWidget(height: 500)
                   : Offstage(
                       offstage: this.layout != 'grid',
@@ -186,17 +186,17 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
                             ? 2
                             : 4,
                         // Generate 100 widgets that display their index in the List.
-                        children: List.generate(_con.foods.length, (index) {
+                        children: List.generate((_con?.foods.length ?? 0), (index) {
                           return FoodGridItemWidget(
                               heroTag: 'category_grid',
-                              food: _con.foods.elementAt(index),
+                              food:( _con?.foods.elementAt(index) ?? Food()),
                               onPressed: () {
                                 if (currentUser.value.apiToken == null) {
                                   Navigator.of(context).pushNamed('/Login');
                                 } else {
-                                  if (_con.isSameRestaurants(
-                                      _con.foods.elementAt(index))) {
-                                    _con.addToCart(_con.foods.elementAt(index));
+                                  if (_con?.isSameRestaurants(
+                                      _con?.foods.elementAt(index) ?? Food()) ?? false) {
+                                    _con?.addToCart(_con?.foods.elementAt(index) ?? Food());
                                   } else {
                                     showDialog(
                                       context: context,
@@ -204,13 +204,13 @@ class _CategoryWidgetState extends StateMVC<CategoryWidget> {
                                         // return object of type Dialog
                                         return AddToCartAlertDialogWidget(
                                             oldFood:
-                                                _con.carts.elementAt(0).food ??
+                                                _con?.carts.elementAt(0).food ??
                                                     Food(),
                                             newFood:
-                                                _con.foods.elementAt(index),
+                                                (_con?.foods.elementAt(index) ?? Food()),
                                             onPressed: (food, {reset = true}) {
-                                              return _con.addToCart(
-                                                  _con.foods.elementAt(index),
+                                              return _con?.addToCart(
+                                                  (_con?.foods.elementAt(index) ?? Food()),
                                                   reset: true);
                                             });
                                       },

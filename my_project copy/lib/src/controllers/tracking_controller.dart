@@ -9,7 +9,7 @@ import '../models/order_status.dart';
 import '../repository/order_repository.dart';
 
 class TrackingController extends ControllerMVC {
-  late Order order;
+  Order? order;
   List<OrderStatus> orderStatus = <OrderStatus>[];
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -65,9 +65,9 @@ class TrackingController extends ControllerMVC {
           _orderStatus.status ?? '',
           style: Theme.of(context).textTheme.titleMedium,
         ),
-        subtitle: order.orderStatus?.id == _orderStatus.id
+        subtitle: order?.orderStatus?.id == _orderStatus.id
             ? Text(
-                '${DateFormat('HH:mm | yyyy-MM-dd').format(order.dateTime ?? DateTime(2025))}',
+                '${DateFormat('HH:mm | yyyy-MM-dd').format(order?.dateTime ?? DateTime(2025))}',
                 style: Theme.of(context).textTheme.bodySmall,
                 overflow: TextOverflow.ellipsis,
               )
@@ -75,9 +75,9 @@ class TrackingController extends ControllerMVC {
         content: SizedBox(
             width: double.infinity,
             child: Text(
-              '${Helper.skipHtml(order.hint ?? '')}',
+              '${Helper.skipHtml(order?.hint ?? '')}',
             )),
-        isActive: ((int.tryParse(order.orderStatus?.id ?? '')) ?? 0) >=
+        isActive: ((int.tryParse(order?.orderStatus?.id ?? '')) ?? 0) >=
             ((int.tryParse(_orderStatus.id ?? '')) ?? 0),
       ));
     });
@@ -90,9 +90,9 @@ class TrackingController extends ControllerMVC {
   }
 
   void doCancelOrder() {
-    cancelOrder(this.order).then((value) {
+    cancelOrder(this.order ?? Order()).then((value) {
       setState(() {
-        this.order.active = false;
+        this.order?.active = false;
       });
     }).catchError((e) {
       if (scaffoldKey.currentContext != null) {
@@ -107,7 +107,7 @@ class TrackingController extends ControllerMVC {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
           content: Text(S
               .of(safeContext)
-              .orderThisorderidHasBeenCanceled(this.order.id ?? '')),
+              .orderThisorderidHasBeenCanceled(this.order?.id ?? '')),
         ));
       }
     });

@@ -23,30 +23,35 @@ ValueNotifier<Address> deliveryAddress = ValueNotifier(Address());
 Coupon coupon = Coupon.fromJSON({});
 final navigatorKey = GlobalKey<NavigatorState>();
 
-Future<Setting> initSettings() async {
-  Setting setting;
+Future<void> initSettings() async {
   final String url =
       '${GlobalConfiguration().getValue('api_base_url')}settings';
+
   try {
     final response = await http.get(Uri.parse(url),
         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+
     if (response.statusCode == 200 &&
         response.headers.containsValue('application/json')) {
-      if (json.decode(response.body)['data'] != null) {
+      final responseData = json.decode(response.body)['data'];
+
+      if (responseData != null) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-            'settings', json.encode(json.decode(response.body)['data']));
-        setting = Setting.fromJSON(json.decode(response.body)['data']);
-        //debugPrint("AllSettingsHere ---- ${Setting.fromJSON(json.decode(response.body)['data'])}");
+        await prefs.setString('settings', json.encode(responseData));
+
+        // ✅ Correct way to update ValueNotifier
+        setting.value = Setting.fromJSON(responseData);
+
+        // ✅ Correctly updating values
         if (prefs.containsKey('language')) {
-          setting.mobileLanguage?.value =
+          setting.value.mobileLanguage?.value =
               Locale(prefs.getString('language') ?? '', '');
         }
-        setting.brightness.value = prefs.getBool('isDark') ?? false
+        setting.value.brightness.value = (prefs.getBool('isDark') ?? false)
             ? Brightness.dark
             : Brightness.light;
-        setting.value = setting;
-        // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+
+        // ✅ Notify listeners about the update
         setting.notifyListeners();
       }
     } else {
@@ -54,10 +59,45 @@ Future<Setting> initSettings() async {
     }
   } catch (e) {
     print(CustomTrace(StackTrace.current, message: url).toString());
-    return Setting.fromJSON({});
+    setting.value = Setting(); // Reset to default setting
   }
-  return setting.value;
 }
+
+// Future<Setting> initSettings() async {
+//   Setting setting;
+//   final String url =
+//       '${GlobalConfiguration().getValue('api_base_url')}settings';
+//   try {
+//     final response = await http.get(Uri.parse(url),
+//         headers: {HttpHeaders.contentTypeHeader: 'application/json'});
+//     if (response.statusCode == 200 &&
+//         response.headers.containsValue('application/json')) {
+//       if (json.decode(response.body)['data'] != null) {
+//         SharedPreferences prefs = await SharedPreferences.getInstance();
+//         await prefs.setString(
+//             'settings', json.encode(json.decode(response.body)['data']));
+//         setting = Setting.fromJSON(json.decode(response.body)['data']);
+//         //debugPrint("AllSettingsHere ---- ${Setting.fromJSON(json.decode(response.body)['data'])}");
+//         if (prefs.containsKey('language')) {
+//           setting.mobileLanguage?.value =
+//               Locale(prefs.getString('language') ?? '', '');
+//         }
+//         setting.brightness.value = prefs.getBool('isDark') ?? false
+//             ? Brightness.dark
+//             : Brightness.light;
+//         setting.value = setting;
+//         // ignore: invalid_use_of_visible_for_testing_member, invalid_use_of_protected_member
+//         setting.notifyListeners();
+//       }
+//     } else {
+//       print(CustomTrace(StackTrace.current, message: response.body).toString());
+//     }
+//   } catch (e) {
+//     print(CustomTrace(StackTrace.current, message: url).toString());
+//     return Setting.fromJSON({});
+//   }
+//   return setting.value;
+// }
 
 Future<dynamic> setCurrentLocation() async {
   // var location = new Location();

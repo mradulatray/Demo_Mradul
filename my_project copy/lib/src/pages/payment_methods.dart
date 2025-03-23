@@ -18,21 +18,21 @@ class PaymentMethodsWidget extends StatefulWidget {
 }
 
 class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget> {
-  late PaymentMethodList list;
+PaymentMethodList? list;
 
   @override
   Widget build(BuildContext context) {
     list = new PaymentMethodList(context);
     if (!(setting.value.payPalEnabled ?? true))
-      list.paymentsList?.removeWhere((element) {
+      list?.paymentsList?.removeWhere((element) {
         return element.id == "paypal";
       });
     if (!(setting.value.razorPayEnabled ?? true))
-      list.paymentsList?.removeWhere((element) {
+      list?.paymentsList?.removeWhere((element) {
         return element.id == "razorpay";
       });
     if (!(setting.value.stripeEnabled ?? true))
-      list.paymentsList?.removeWhere((element) {
+      list?.paymentsList?.removeWhere((element) {
         return element.id == "visacard" || element.id == "mastercard";
       });
     return Scaffold(
@@ -67,7 +67,7 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget> {
               ),
             ),
             SizedBox(height: 15),
-            (list.paymentsList?.length ?? 0) > 0
+            (list?.paymentsList?.length ?? 0) > 0
                 ? Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: ListTile(
@@ -95,13 +95,13 @@ class _PaymentMethodsWidgetState extends State<PaymentMethodsWidget> {
               scrollDirection: Axis.vertical,
               shrinkWrap: true,
               primary: false,
-              itemCount: list.paymentsList?.length ?? 0,
+              itemCount: list?.paymentsList?.length ?? 0,
               separatorBuilder: (context, index) {
                 return SizedBox(height: 10);
               },
               itemBuilder: (context, index) {
                 return PaymentMethodListItemWidget(
-                    paymentMethod: (list.paymentsList ?? []).elementAt(index));
+                    paymentMethod: (list?.paymentsList ?? []).elementAt(index));
               },
             ),
             /*list.cashList.length > 0

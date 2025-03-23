@@ -25,8 +25,8 @@ class DeliveryAddressesWidget extends StatefulWidget {
 }
 
 class _DeliveryAddressesWidgetState extends StateMVC<DeliveryAddressesWidget> {
-  late DeliveryAddressesController _con;
-  late PaymentMethodList list;
+  DeliveryAddressesController? _con;
+  PaymentMethodList? list;
 
   _DeliveryAddressesWidgetState() : super(DeliveryAddressesController()) {
     _con = controller as DeliveryAddressesController;
@@ -36,7 +36,7 @@ class _DeliveryAddressesWidgetState extends StateMVC<DeliveryAddressesWidget> {
   Widget build(BuildContext context) {
     list = new PaymentMethodList(context);
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -54,7 +54,8 @@ class _DeliveryAddressesWidgetState extends StateMVC<DeliveryAddressesWidget> {
               labelColor: Theme.of(context).colorScheme.secondary),
         ],
       ),
-      floatingActionButton: (_con.cart.food?.restaurant?.availableForDelivery ??
+      floatingActionButton: (_con
+                  ?.cart?.food?.restaurant?.availableForDelivery ??
               false)
           ? /* FloatingActionButton(
               onPressed: () async {
@@ -83,7 +84,7 @@ class _DeliveryAddressesWidgetState extends StateMVC<DeliveryAddressesWidget> {
           SizedBox(height: 0)
           : SizedBox(height: 0),
       body: RefreshIndicator(
-        onRefresh: _con.refreshAddresses,
+        onRefresh: _con?.refreshAddresses ?? () async {},
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,26 +116,26 @@ class _DeliveryAddressesWidgetState extends StateMVC<DeliveryAddressesWidget> {
                   ),
                 ),
               ),
-              _con.addresses.isEmpty
+              (_con?.addresses.isEmpty ?? false)
                   ? CircularLoadingWidget(height: 250)
                   : ListView.separated(
                       padding: EdgeInsets.symmetric(vertical: 15),
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,
                       primary: false,
-                      itemCount: _con.addresses.length,
+                      itemCount: (_con?.addresses.length ?? 0),
                       separatorBuilder: (context, index) {
                         return SizedBox(height: 15);
                       },
                       itemBuilder: (context, index) {
                         return DeliveryAddressesItemWidget(
-                          address: _con.addresses.elementAt(index),
+                          address: (_con?.addresses.elementAt(index) ?? Address()),
                           onPressed: (Address _address) {
                             DeliveryAddressDialog(
                               context: context,
                               address: _address,
                               onChanged: (Address _address) {
-                                _con.updateAddress(_address);
+                                _con?.updateAddress(_address);
                               },
                             );
                           },
@@ -143,12 +144,12 @@ class _DeliveryAddressesWidgetState extends StateMVC<DeliveryAddressesWidget> {
                               context: context,
                               address: _address,
                               onChanged: (Address _address) {
-                                _con.updateAddress(_address);
+                                _con?.updateAddress(_address);
                               },
                             );
                           },
                           onDismissed: (Address _address) {
-                            _con.removeDeliveryAddress(_address);
+                            _con?.removeDeliveryAddress(_address);
                           },
                         );
                       },

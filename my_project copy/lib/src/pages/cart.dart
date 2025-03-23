@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/cart.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import '../../generated/l10n.dart';
 import '../controllers/cart_controller.dart';
@@ -20,7 +21,7 @@ class CartWidget extends StatefulWidget {
 }
 
 class _CartWidgetState extends StateMVC<CartWidget> {
-  late CartController _con;
+  CartController? _con;
 
   _CartWidgetState() : super(CartController()) {
     _con = controller as CartController;
@@ -28,8 +29,8 @@ class _CartWidgetState extends StateMVC<CartWidget> {
 
   @override
   void initState() {
-    _con.listenForCarts();
-    _con.saveDefaultToSharedPreferences();
+    _con?.listenForCarts();
+    _con?.saveDefaultToSharedPreferences();
     super.initState();
   }
 
@@ -38,8 +39,9 @@ class _CartWidgetState extends StateMVC<CartWidget> {
     return WillPopScope(
       onWillPop: Helper.of(context).onWillPop,
       child: Scaffold(
-        key: _con.scaffoldKey,
-        bottomNavigationBar: CartBottomDetailsWidget(con: _con),
+        key: _con?.scaffoldKey,
+        bottomNavigationBar:
+            CartBottomDetailsWidget(con: _con ?? CartController()),
         appBar: AppBar(
           automaticallyImplyLeading: false,
           leading: IconButton(
@@ -62,8 +64,8 @@ class _CartWidgetState extends StateMVC<CartWidget> {
           ),
         ),
         body: RefreshIndicator(
-          onRefresh: _con.refreshCarts,
-          child: _con.carts.isEmpty
+          onRefresh: _con?.refreshCarts ?? () async {},
+          child: (_con?.carts.isEmpty ?? false)
               ? EmptyCartWidget()
               : Stack(
                   alignment: AlignmentDirectional.bottomCenter,
@@ -102,25 +104,25 @@ class _CartWidgetState extends StateMVC<CartWidget> {
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
                           primary: false,
-                          itemCount: _con.carts.length,
+                          itemCount: (_con?.carts.length ?? 0),
                           separatorBuilder: (context, index) {
                             return SizedBox(height: 15);
                           },
                           itemBuilder: (context, index) {
                             return CartItemWidget(
-                              cart: _con.carts.elementAt(index),
+                              cart: (_con?.carts.elementAt(index) ?? Cart()),
                               heroTag: 'cart',
                               increment: () {
-                                _con.incrementQuantity(
-                                    _con.carts.elementAt(index));
+                                _con?.incrementQuantity(
+                                    _con?.carts.elementAt(index) ?? Cart());
                               },
                               decrement: () {
-                                _con.decrementQuantity(
-                                    _con.carts.elementAt(index));
+                                _con?.decrementQuantity(
+                                    _con?.carts.elementAt(index) ?? Cart());
                               },
                               onDismissed: () {
-                                _con.removeFromCart(
-                                    _con.carts.elementAt(index));
+                                _con?.removeFromCart(
+                                    _con?.carts.elementAt(index) ?? Cart());
                               },
                             );
                           },
@@ -144,7 +146,7 @@ class _CartWidgetState extends StateMVC<CartWidget> {
                       child: TextField(
                         keyboardType: TextInputType.text,
                         onSubmitted: (String value) {
-                          _con.doApplyCoupon(value);
+                          _con?.doApplyCoupon(value);
                         },
                         cursorColor: Theme.of(context).colorScheme.secondary,
                         controller: TextEditingController()
@@ -162,12 +164,12 @@ class _CartWidgetState extends StateMVC<CartWidget> {
                           suffixStyle: (Theme.of(context).textTheme.bodySmall ??
                                   TextStyle(fontSize: 16))
                               .merge(
-                                  TextStyle(color: _con.getCouponIconColor())),
+                                  TextStyle(color: _con?.getCouponIconColor())),
                           suffixIcon: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 15),
                             child: Icon(
                               Icons.confirmation_number,
-                              color: _con.getCouponIconColor(),
+                              color: _con?.getCouponIconColor(),
                               size: 28,
                             ),
                           ),

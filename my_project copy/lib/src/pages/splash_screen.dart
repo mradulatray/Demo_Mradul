@@ -14,9 +14,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class SplashScreenState extends StateMVC<SplashScreen> {
-  late SplashScreenController _con;
-  late Restaurant restaurant;
-  final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
+  SplashScreenController? _con;
+  Restaurant? restaurant;
+  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   SplashScreenState() : super(SplashScreenController()) {
     _con = controller as SplashScreenController;
@@ -29,9 +29,9 @@ class SplashScreenState extends StateMVC<SplashScreen> {
   }
 
   void loadData() {
-    _con.progress.addListener(() {
+    _con?.progress.addListener(() {
       double progress = 0;
-      _con.progress.value.values.forEach((_progress) {
+      _con?.progress.value.values.forEach((_progress) {
         progress += _progress;
       });
       if (progress == 100) {
@@ -41,7 +41,10 @@ class SplashScreenState extends StateMVC<SplashScreen> {
 
           Navigator.of(context).pushReplacementNamed('/Pages');
           // MenuWidget(parentScaffoldKey: widget.scaffoldKey, routeArgument: RouteArgument(param: _con.restaurant));
-        } catch (e) {}
+        } catch (e) {
+
+          
+        }
       }
     });
   }
@@ -49,7 +52,7 @@ class SplashScreenState extends StateMVC<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       body: Container(
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,

@@ -4,13 +4,20 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 import '../../generated/l10n.dart';
 import '../models/faq_category.dart';
 import '../repository/faq_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class FaqController extends ControllerMVC {
   List<FaqCategory> faqs = <FaqCategory>[];
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+  
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // FaqController() {
@@ -32,9 +39,9 @@ class FaqController extends ControllerMVC {
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -51,6 +58,7 @@ class FaqController extends ControllerMVC {
 
   Future<void> refreshFaqs() async {
     faqs.clear();
-    listenForFaqs(message: S.of(safeContext).faqsRefreshedSuccessfuly);
+    if(safeContext!=null){
+    listenForFaqs(message: S.of(safeContext!).faqsRefreshedSuccessfuly);}
   }
 }

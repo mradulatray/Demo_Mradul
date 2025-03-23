@@ -9,10 +9,10 @@ import '../repository/user_repository.dart' as userRepo;
 
 class RazorPayController extends ControllerMVC {
   // GlobalKey<ScaffoldState> scaffoldKey;
-  late WebViewController webView;
+  WebViewController? webView;
   String url = "";
   double progress = 0;
-  late Address deliveryAddress;
+  Address? deliveryAddress;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
   // RazorPayController() {

@@ -22,7 +22,7 @@ class ShoppingCartButtonWidget extends StatefulWidget {
 
 class _ShoppingCartButtonWidgetState
     extends StateMVC<ShoppingCartButtonWidget> {
-  late CartController _con;
+   CartController? _con;
 
   _ShoppingCartButtonWidgetState() : super(CartController()) {
     _con = controller as CartController;
@@ -30,7 +30,7 @@ class _ShoppingCartButtonWidgetState
 
   @override
   void initState() {
-    _con.listenForCartsCount();
+    _con?.listenForCartsCount();
     super.initState();
   }
 
@@ -59,7 +59,7 @@ class _ShoppingCartButtonWidgetState
           ),
           Container(
             child: Text(
-              _con.cartCount.toString(),
+              (_con?.cartCount.toString() ?? ''),
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodySmall?.merge(
                     TextStyle(

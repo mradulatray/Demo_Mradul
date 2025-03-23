@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/order.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 import '../../generated/l10n.dart';
 import '../controllers/order_controller.dart';
@@ -19,7 +20,7 @@ class OrdersWidget extends StatefulWidget {
 }
 
 class _OrdersWidgetState extends StateMVC<OrdersWidget> {
-  late OrderController _con;
+  OrderController? _con;
 
   _OrdersWidgetState() : super(OrderController()) {
     _con = controller as OrderController;
@@ -28,7 +29,7 @@ class _OrdersWidgetState extends StateMVC<OrdersWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
+      key: _con?.scaffoldKey,
       appBar: AppBar(
         leading: new IconButton(
           icon: new Icon(Icons.sort, color: Theme.of(context).hintColor),
@@ -53,10 +54,10 @@ class _OrdersWidgetState extends StateMVC<OrdersWidget> {
       ),
       body: currentUser.value.apiToken == null
           ? PermissionDeniedWidget()
-          : _con.orders.isEmpty
+          : (_con?.orders.isEmpty ?? false)
               ? EmptyOrdersWidget()
               : RefreshIndicator(
-                  onRefresh: _con.refreshOrders,
+                  onRefresh: _con?.refreshOrders ?? () async {},
                   child: SingleChildScrollView(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Column(
@@ -75,14 +76,14 @@ class _OrdersWidgetState extends StateMVC<OrdersWidget> {
                           scrollDirection: Axis.vertical,
                           shrinkWrap: true,
                           primary: false,
-                          itemCount: _con.orders.length,
+                          itemCount: (_con?.orders.length ?? 0),
                           itemBuilder: (context, index) {
-                            var _order = _con.orders.elementAt(index);
+                            var _order = _con?.orders.elementAt(index) ?? Order();
                             return OrderItemWidget(
                               expanded: index == 0 ? true : false,
                               order: _order,
                               onCanceled: (e) {
-                                _con.doCancelOrder(_order);
+                                _con?.doCancelOrder(_order);
                               },
                             );
                           },

@@ -11,14 +11,14 @@ import '../models/route_argument.dart';
 class OrderSuccessWidget extends StatefulWidget {
   final RouteArgument routeArgument;
 
-  OrderSuccessWidget({Key? key, required this.routeArgument}) : super(key: key);
+  const OrderSuccessWidget({super.key, required this.routeArgument});
 
   @override
   _OrderSuccessWidgetState createState() => _OrderSuccessWidgetState();
 }
 
 class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
-  late CheckoutController _con;
+  CheckoutController? _con;
 
   _OrderSuccessWidgetState() : super(CheckoutController()) {
     _con = controller as CheckoutController;
@@ -27,8 +27,8 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
   @override
   void initState() {
     // route param contains the payment method
-    _con.payment = new Payment(widget.routeArgument.param);
-    _con.listenForCarts();
+    _con?.payment = Payment(widget.routeArgument.param);
+    _con?.listenForCarts();
     super.initState();
   }
 
@@ -37,7 +37,7 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
     return WillPopScope(
       onWillPop: () async => false, // Disable the back button
       child: Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.transparent,
@@ -51,7 +51,7 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
                 ?.merge(TextStyle(letterSpacing: 1.3)),
           ),
         ),
-        body: _con.carts.isEmpty
+        body: (_con?.carts.isEmpty ?? false)
             ? CircularLoadingWidget(height: 500)
             : Stack(
                 fit: StackFit.expand,
@@ -189,7 +189,7 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
                                         Theme.of(context).textTheme.bodyLarge,
                                   ),
                                 ),
-                                Helper.getPrice(_con.subTotal, context,
+                                Helper.getPrice((_con?.subTotal ?? 0), context,
                                     style: Theme.of(context)
                                             .textTheme
                                             .titleMedium ??
@@ -197,7 +197,7 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
                               ],
                             ),
                             SizedBox(height: 3),
-                            _con.payment.method == 'Pay on Pickup'
+                            _con?.payment?.method == 'Pay on Pickup'
                                 ? SizedBox(height: 0)
                                 : Row(
                                     children: <Widget>[
@@ -210,7 +210,7 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
                                         ),
                                       ),
                                       Helper.getPrice(
-                                          (_con.carts[0].food?.restaurant
+                                          (_con?.carts[0].food?.restaurant
                                                   ?.deliveryFee ??
                                               0),
                                           context,
@@ -225,12 +225,12 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
                               children: <Widget>[
                                 Expanded(
                                   child: Text(
-                                    "${S.of(context).tax} (${_con.carts[0].food?.restaurant?.defaultTax}%)",
+                                    "${S.of(context).tax} (${_con?.carts[0].food?.restaurant?.defaultTax}%)",
                                     style:
                                         Theme.of(context).textTheme.bodyLarge,
                                   ),
                                 ),
-                                Helper.getPrice(_con.taxAmount, context,
+                                Helper.getPrice(_con?.taxAmount ?? 0, context,
                                     style: Theme.of(context)
                                             .textTheme
                                             .titleMedium ??
@@ -248,7 +248,7 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
                                         .headlineSmall,
                                   ),
                                 ),
-                                Helper.getPrice(_con.total, context,
+                                Helper.getPrice(_con?.total ?? 0, context,
                                     style: Theme.of(context)
                                             .textTheme
                                             .headlineSmall ??
@@ -292,7 +292,7 @@ class _OrderSuccessWidgetState extends StateMVC<OrderSuccessWidget> {
   //@override
   // Widget build(BuildContext context) {
   //   return Scaffold(
-  //       key: _con.scaffoldKey,
+  //       key: _con?.scaffoldKey,
   //       appBar: AppBar(
   //         automaticallyImplyLeading: false,
   //       /*  leading: IconButton(

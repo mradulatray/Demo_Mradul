@@ -4,14 +4,21 @@ import 'package:mvc_pattern/mvc_pattern.dart';
 import '../../generated/l10n.dart';
 import '../models/notification.dart' as model;
 import '../repository/notification_repository.dart';
+import '../repository/settings_repository.dart' as settingRepo;
 
 class NotificationController extends ControllerMVC {
   List<model.Notification> notifications = <model.Notification>[];
   int unReadNotificationsCount = 0;
   // GlobalKey<ScaffoldState> scaffoldKey;
   GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  BuildContext get safeContext {
-    return state?.context ?? scaffoldKey.currentContext!;
+  // BuildContext get safeContext {
+  //   return state?.context ?? scaffoldKey.currentContext!;
+  // }
+
+  BuildContext? get safeContext {
+    return state?.context ??
+        scaffoldKey.currentContext ??
+        settingRepo.navigatorKey.currentContext;
   }
 
   // NotificationController() {
@@ -34,9 +41,9 @@ class NotificationController extends ControllerMVC {
       });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).verify_your_internet_connection),
+          content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
       }
     }, onDone: () {
@@ -53,8 +60,10 @@ class NotificationController extends ControllerMVC {
 
   Future<void> refreshNotifications() async {
     notifications.clear();
-    listenForNotifications(
-        message: S.of(safeContext).notifications_refreshed_successfuly);
+    if (safeContext != null) {
+      listenForNotifications(
+          message: S.of(safeContext!).notifications_refreshed_successfuly);
+    }
   }
 
   void doMarkAsReadNotifications(model.Notification _notification) async {
@@ -63,9 +72,9 @@ class NotificationController extends ControllerMVC {
         --unReadNotificationsCount;
         _notification.read = !(_notification.read ?? true);
       });
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).thisNotificationHasMarkedAsRead),
+          content: Text(S.of(safeContext!).thisNotificationHasMarkedAsRead),
         ));
       }
     });
@@ -77,9 +86,9 @@ class NotificationController extends ControllerMVC {
         ++unReadNotificationsCount;
         _notification.read = !(_notification.read ?? true);
       });
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext!=null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).thisNotificationHasMarkedAsUnread),
+          content: Text(S.of(safeContext!).thisNotificationHasMarkedAsUnread),
         ));
       }
     });
@@ -93,9 +102,9 @@ class NotificationController extends ControllerMVC {
         }
         this.notifications.remove(_notification);
       });
-      if (scaffoldKey.currentContext != null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext).notificationWasRemoved),
+          content: Text(S.of(safeContext!).notificationWasRemoved),
         ));
       }
     });

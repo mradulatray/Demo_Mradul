@@ -15,10 +15,10 @@ import 'menu_list.dart';
 import 'restaurant.dart';
 
 class DetailsWidget extends StatefulWidget {
-  late RouteArgument routeArgument;
+  RouteArgument? routeArgument;
   dynamic currentTab;
   final GlobalKey<ScaffoldState> scaffoldKey = new GlobalKey<ScaffoldState>();
-  late Widget currentPage;
+  Widget? currentPage;
 
   DetailsWidget({
     Key? key,
@@ -41,7 +41,7 @@ class DetailsWidget extends StatefulWidget {
 }
 
 class _DetailsWidgetState extends StateMVC<DetailsWidget> {
-  late RestaurantController _con;
+   RestaurantController? _con;
 
   _DetailsWidgetState() : super(RestaurantController()) {
     _con = controller as RestaurantController;
@@ -64,14 +64,14 @@ class _DetailsWidgetState extends StateMVC<DetailsWidget> {
       switch (tabItem) {
         case 0:
           _con
-              .listenForRestaurant(id: widget.routeArgument.param)
+              ?.listenForRestaurant(id: widget.routeArgument?.param)
               .then((value) {
             setState(() {
-              _con.restaurant = value as Restaurant;
-              print(_con.restaurant.toMap());
+              _con?.restaurant = value as Restaurant;
+              print(_con?.restaurant?.toMap());
               widget.currentPage = RestaurantWidget(
                   parentScaffoldKey: widget.scaffoldKey,
-                  routeArgument: RouteArgument(param: _con.restaurant));
+                  routeArgument: RouteArgument(param: _con?.restaurant));
             });
           });
           break;
@@ -80,26 +80,26 @@ class _DetailsWidgetState extends StateMVC<DetailsWidget> {
             widget.currentPage = PermissionDeniedWidget();
           } else {
             Conversation _conversation = new Conversation(
-                _con.restaurant.users?.map((e) {
-                  e.image = _con.restaurant.image;
+                _con?.restaurant?.users?.map((e) {
+                  e.image = _con?.restaurant?.image;
                   return e;
                 }).toList(),
-                name: _con.restaurant.name);
+                name: _con?.restaurant?.name);
             widget.currentPage = ChatWidget(
                 parentScaffoldKey: widget.scaffoldKey,
                 routeArgument: RouteArgument(
-                    id: _con.restaurant.id, param: _conversation));
+                    id: _con?.restaurant?.id, param: _conversation));
           }
           break;
         case 2:
           widget.currentPage = MapWidget(
               parentScaffoldKey: widget.scaffoldKey,
-              routeArgument: RouteArgument(param: _con.restaurant));
+              routeArgument: RouteArgument(param: _con?.restaurant));
           break;
         case 3:
           widget.currentPage = MenuWidget(
               parentScaffoldKey: widget.scaffoldKey,
-              routeArgument: RouteArgument(param: _con.restaurant));
+              routeArgument: RouteArgument(param: _con?.restaurant));
           break;
       }
     });

@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:food_delivery_app/src/models/food.dart';
+import 'package:food_delivery_app/src/models/review.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -20,7 +22,7 @@ class ReviewsWidget extends StatefulWidget {
 }
 
 class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
-  late ReviewsController _con;
+  ReviewsController? _con;
 
   _ReviewsWidgetState() : super(ReviewsController()) {
     _con = controller as ReviewsController;
@@ -28,17 +30,17 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
 
   @override
   void initState() {
-    _con.listenForOrder(orderId: widget.routeArgument.id);
+    _con?.listenForOrder(orderId: widget.routeArgument.id);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         body: RefreshIndicator(
-            onRefresh: _con.refreshOrder,
-            child: _con.order == null
+            onRefresh: _con?.refreshOrder ?? () async {},
+            child: _con?.order == null
                 ? CircularLoadingWidget(height: 500)
                 : SingleChildScrollView(
                     child: Column(
@@ -56,12 +58,12 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                     child: Hero(
                                       tag:
                                           (widget.routeArgument.heroTag ?? '') +
-                                              (_con.order.foodOrders?[0].food
+                                              (_con?.order?.foodOrders?[0].food
                                                       ?.restaurant?.id ??
                                                   ''),
                                       child: CachedNetworkImage(
                                         fit: BoxFit.cover,
-                                        imageUrl: (_con.order.foodOrders?[0]
+                                        imageUrl: (_con?.order?.foodOrders?[0]
                                                 .food?.restaurant?.image?.url ??
                                             ''),
                                         placeholder: (context, url) =>
@@ -85,7 +87,7 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                           MainAxisAlignment.center,
                                       children: <Widget>[
                                         Text(
-                                            (_con.order.foodOrders?[0].food
+                                            (_con?.order?.foodOrders?[0].food
                                                     ?.restaurant?.rate ??
                                                 ''),
                                             style: Theme.of(context)
@@ -127,7 +129,7 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                         ),
                         SizedBox(height: 10),
                         Text(
-                          (_con.order.foodOrders?[0].food?.restaurant?.name ??
+                          (_con?.order?.foodOrders?[0].food?.restaurant?.name ??
                               ''),
                           overflow: TextOverflow.fade,
                           softWrap: false,
@@ -171,13 +173,13 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                   return InkWell(
                                     onTap: () {
                                       setState(() {
-                                        _con.restaurantReview.rate =
+                                        _con?.restaurantReview?.rate =
                                             (index + 1).toString();
                                       });
                                     },
                                     child: index <
                                             int.parse(
-                                                _con.restaurantReview.rate ??
+                                                _con?.restaurantReview?.rate ??
                                                     '')
                                         ? Icon(Icons.star,
                                             size: 40, color: Color(0xFFFFB24D))
@@ -189,7 +191,7 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                               SizedBox(height: 10),
                               TextField(
                                 onChanged: (text) {
-                                  _con.restaurantReview.review = text;
+                                  _con?.restaurantReview?.review = text;
                                 },
                                 maxLines: 2,
                                 textAlign: TextAlign.center,
@@ -225,8 +227,8 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                 // textColor: Theme.of(context).primaryColor,
                                 // color: Theme.of(context).accentColor,
                                 onPressed: () {
-                                  _con.addRestaurantReview(
-                                      _con.restaurantReview);
+                                  _con?.addRestaurantReview(
+                                      _con?.restaurantReview ?? Review());
                                   FocusScope.of(context).unfocus();
                                 },
                                 style: ButtonStyle(
@@ -261,7 +263,7 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                         ),
                         Column(
                           children:
-                              List.generate(_con.foodsOfOrder.length, (index) {
+                              List.generate(_con?.foodsOfOrder.length ?? 0, (index) {
                             return Container(
                               width: MediaQuery.of(context).size.width,
                               margin: EdgeInsets.symmetric(
@@ -284,7 +286,7 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 mainAxisSize: MainAxisSize.max,
                                 children: <Widget>[
-                                  Text((_con.foodsOfOrder[index].name ?? ''),
+                                  Text((_con?.foodsOfOrder[index].name ?? ''),
                                       textAlign: TextAlign.center,
                                       style: Theme.of(context)
                                           .textTheme
@@ -296,13 +298,13 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                       return InkWell(
                                         onTap: () {
                                           setState(() {
-                                            _con.foodsReviews[index].rate =
+                                            _con?.foodsReviews[index].rate =
                                                 (star + 1).toString();
                                           });
                                         },
                                         child: star <
                                                 int.parse(_con
-                                                        .foodsReviews[index]
+                                                        ?.foodsReviews[index]
                                                         .rate ??
                                                     '')
                                             ? Icon(Icons.star,
@@ -317,7 +319,7 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                   SizedBox(height: 10),
                                   TextField(
                                     onChanged: (text) {
-                                      _con.foodsReviews[index].review = text;
+                                      _con?.foodsReviews[index].review = text;
                                     },
                                     maxLines: 2,
                                     textAlign: TextAlign.center,
@@ -369,9 +371,9 @@ class _ReviewsWidgetState extends StateMVC<ReviewsWidget> {
                                                 color: Theme.of(context)
                                                     .primaryColor))),
                                     onPressed: () {
-                                      _con.addFoodReview(
-                                          _con.foodsReviews[index],
-                                          _con.foodsOfOrder[index]);
+                                      _con?.addFoodReview(
+                                          _con?.foodsReviews[index] ?? Review(),
+                                          _con?.foodsOfOrder[index] ?? Food());
                                       FocusScope.of(context).unfocus();
                                     },
                                     label: Text(

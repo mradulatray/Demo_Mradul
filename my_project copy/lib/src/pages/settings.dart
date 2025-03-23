@@ -16,7 +16,7 @@ class SettingsWidget extends StatefulWidget {
 }
 
 class _SettingsWidgetState extends StateMVC<SettingsWidget> {
-  late SettingsController _con;
+  SettingsController? _con;
 
   _SettingsWidgetState() : super(SettingsController()) {
     _con = controller as SettingsController;
@@ -25,7 +25,7 @@ class _SettingsWidgetState extends StateMVC<SettingsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -135,7 +135,7 @@ class _SettingsWidgetState extends StateMVC<SettingsWidget> {
                                 // skip mobile verification Starts here
                                 onChanged: () {
                                   // Directly update the user values
-                                  _con.update(currentUser.value);
+                                  _con?.update(currentUser.value);
 
                                   // Optional: You can also call setState() if the UI needs to be updated
                                   setState(() {});

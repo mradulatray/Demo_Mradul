@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/order.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:mvc_pattern/mvc_pattern.dart';
 
@@ -22,8 +23,8 @@ class TrackingWidget extends StatefulWidget {
 
 class _TrackingWidgetState extends StateMVC<TrackingWidget>
     with SingleTickerProviderStateMixin {
-  late TrackingController _con;
-  late TabController _tabController;
+  TrackingController? _con;
+  TabController? _tabController;
   int _tabIndex = 0;
 
   _TrackingWidgetState() : super(TrackingController()) {
@@ -32,22 +33,22 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
 
   @override
   void initState() {
-    _con.listenForOrder(orderId: widget.routeArgument.id);
+    _con?.listenForOrder(orderId: widget.routeArgument.id);
     _tabController =
         TabController(length: 2, initialIndex: _tabIndex, vsync: this);
-    _tabController.addListener(_handleTabSelection);
+    _tabController?.addListener(_handleTabSelection);
     super.initState();
   }
 
   void dispose() {
-    _tabController.dispose();
+    _tabController?.dispose();
     super.dispose();
   }
 
   _handleTabSelection() {
-    if (_tabController.indexIsChanging) {
+    if (_tabController?.indexIsChanging ?? false) {
       setState(() {
-        _tabIndex = _tabController.index;
+        _tabIndex = _tabController?.index ?? 0;
       });
     }
   }
@@ -57,7 +58,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
     //final theme = Theme.of(context).copyWith(dividerColor: Colors.transparent, accentColor: Theme.of(context).accentColor);
     final theme = Theme.of(context).copyWith(dividerColor: Colors.transparent);
     return Scaffold(
-        key: _con.scaffoldKey,
+        key: _con?.scaffoldKey,
         bottomNavigationBar: Container(
           width: MediaQuery.of(context).size.width,
           height: 135,
@@ -72,7 +73,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                     offset: Offset(0, -2),
                     blurRadius: 5.0)
               ]),
-          child: _con.orderStatus.isEmpty
+          child: (_con?.orderStatus.isEmpty ?? false)
               ? CircularLoadingWidget(height: 120)
               : Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -100,7 +101,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                   ],
                 ),
         ),
-        body: _con.orderStatus.isEmpty
+        body: (_con?.orderStatus.isEmpty ?? false)
             ? CircularLoadingWidget(height: 400)
             : CustomScrollView(slivers: <Widget>[
                 SliverAppBar(
@@ -178,7 +179,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                           alignment: AlignmentDirectional.topCenter,
                           children: <Widget>[
                             Opacity(
-                              opacity: (_con.order.active ?? false) ? 1 : 0.4,
+                              opacity: (_con?.order?.active ?? false) ? 1 : 0.4,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: <Widget>[
@@ -206,11 +207,11 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                         title: Column(
                                           children: <Widget>[
                                             Text(
-                                                '${S.of(context).order_id}: #${_con.order.id}'),
+                                                '${S.of(context).order_id}: #${_con?.order?.id}'),
                                             Text(
                                               DateFormat('dd-MM-yyyy | HH:mm')
                                                   .format(
-                                                      (_con.order.dateTime ??
+                                                      (_con?.order?.dateTime ??
                                                           DateTime.now())),
                                               style: Theme.of(context)
                                                   .textTheme
@@ -230,14 +231,14 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                           children: <Widget>[
                                             Helper.getPrice(
                                                 Helper.getTotalOrdersPrice(
-                                                    _con.order),
+                                                    _con?.order ?? Order()),
                                                 context,
                                                 style: Theme.of(context)
                                                         .textTheme
                                                         .headlineLarge ??
                                                     TextStyle(fontSize: 18)),
                                             Text(
-                                              '${_con.order.payment?.method}',
+                                              '${_con?.order?.payment?.method}',
                                               style: Theme.of(context)
                                                   .textTheme
                                                   .bodySmall,
@@ -247,14 +248,14 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                         children: <Widget>[
                                           Column(
                                               children: List.generate(
-                                            (_con.order.foodOrders?.length ??
+                                            (_con?.order?.foodOrders?.length ??
                                                 0),
                                             (indexFood) {
                                               return FoodOrderItemWidget(
                                                   heroTag: 'my_order',
-                                                  order: _con.order,
-                                                  foodOrder: (_con.order
-                                                              .foodOrders ??
+                                                  order: _con?.order ?? Order(),
+                                                  foodOrder: (_con?.order
+                                                              ?.foodOrders ??
                                                           [])
                                                       .elementAt(indexFood));
                                             },
@@ -277,8 +278,8 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                                       ),
                                                     ),
                                                     Helper.getPrice(
-                                                        (_con.order
-                                                                .deliveryFee ??
+                                                        (_con?.order
+                                                                ?.deliveryFee ??
                                                             0),
                                                         context,
                                                         style: Theme.of(context)
@@ -292,7 +293,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                                   children: <Widget>[
                                                     Expanded(
                                                       child: Text(
-                                                        '${S.of(context).tax} (${_con.order.tax}%)',
+                                                        '${S.of(context).tax} (${_con?.order?.tax}%)',
                                                         style: Theme.of(context)
                                                             .textTheme
                                                             .bodyLarge,
@@ -300,7 +301,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                                     ),
                                                     Helper.getPrice(
                                                         Helper.getTaxOrder(
-                                                            _con.order),
+                                                            _con?.order ?? Order()),
                                                         context,
                                                         style: Theme.of(context)
                                                                 .textTheme
@@ -322,7 +323,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                                     Helper.getPrice(
                                                         Helper
                                                             .getTotalOrdersPrice(
-                                                                _con.order),
+                                                                _con?.order ?? Order()),
                                                         context,
                                                         style: Theme.of(context)
                                                                 .textTheme
@@ -342,7 +343,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                     child: Wrap(
                                       alignment: WrapAlignment.end,
                                       children: <Widget>[
-                                        if (_con.order.canCancelOrder())
+                                        if (_con?.order?.canCancelOrder() ?? false)
                                           MaterialButton(
                                             elevation: 0,
                                             focusElevation: 0,
@@ -390,7 +391,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                                                   .hintColor),
                                                         ),
                                                         onPressed: () {
-                                                          _con.doCancelOrder();
+                                                          _con?.doCancelOrder();
                                                           Navigator.of(context)
                                                               .pop();
                                                         },
@@ -443,13 +444,13 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                               decoration: BoxDecoration(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(100)),
-                                  color: (_con.order.active ?? false)
+                                  color: (_con?.order?.active ?? false)
                                       ? Theme.of(context).colorScheme.secondary
                                       : Colors.redAccent),
                               alignment: AlignmentDirectional.center,
                               child: Text(
-                                (_con.order.active ?? false)
-                                    ? '${_con.order.orderStatus?.status}'
+                                (_con?.order?.active ?? false)
+                                    ? '${_con?.order?.orderStatus?.status}'
                                     : S.of(context).canceled,
                                 maxLines: 1,
                                 overflow: TextOverflow.fade,
@@ -483,16 +484,16 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                     ControlsDetails details) {
                                   return SizedBox(height: 0);
                                 },
-                                steps: _con.getTrackingSteps(context),
+                                steps: _con?.getTrackingSteps(context) ?? [],
                                 currentStep: (int.tryParse(
-                                            this._con.order.orderStatus?.id ??
+                                            this._con?.order?.orderStatus?.id ??
                                                 '') ??
                                         0) -
                                     1,
                               ),
                             ),
                           ),
-                          _con.order.deliveryAddress?.address != null
+                          _con?.order?.deliveryAddress?.address != null
                               ? Container(
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 20, vertical: 15),
@@ -528,7 +529,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                               CrossAxisAlignment.start,
                                           children: <Widget>[
                                             Text(
-                                              _con.order.deliveryAddress
+                                              _con?.order?.deliveryAddress
                                                       ?.description ??
                                                   "",
                                               overflow: TextOverflow.fade,
@@ -538,7 +539,7 @@ class _TrackingWidgetState extends StateMVC<TrackingWidget>
                                                   .titleMedium,
                                             ),
                                             Text(
-                                              _con.order.deliveryAddress
+                                              _con?.order?.deliveryAddress
                                                       ?.address ??
                                                   S.of(context).unknown,
                                               overflow: TextOverflow.ellipsis,

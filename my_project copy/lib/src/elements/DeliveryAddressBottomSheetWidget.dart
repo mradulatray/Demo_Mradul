@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:food_delivery_app/src/models/address.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -19,7 +20,7 @@ class DeliveryAddressBottomSheetWidget extends StatefulWidget {
 
 class _DeliveryAddressBottomSheetWidgetState
     extends StateMVC<DeliveryAddressBottomSheetWidget> {
-  late DeliveryAddressesController _con;
+  DeliveryAddressesController? _con;
 
   _DeliveryAddressBottomSheetWidgetState()
       : super(DeliveryAddressesController()) {
@@ -101,7 +102,7 @@ class _DeliveryAddressBottomSheetWidgetState
                 SizedBox(height: 25),
                 InkWell(
                   onTap: () {
-                    _con.changeDeliveryAddressToCurrentLocation().then((value) {
+                    _con?.changeDeliveryAddressToCurrentLocation().then((value) {
                       if (widget.scaffoldKey.currentContext != null) {
                         Navigator.of(widget.scaffoldKey.currentContext!).pop();
                       }
@@ -157,7 +158,7 @@ class _DeliveryAddressBottomSheetWidgetState
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   primary: false,
-                  itemCount: _con.addresses.length,
+                  itemCount: (_con?.addresses.length ?? 0),
                   separatorBuilder: (context, index) {
                     return SizedBox(height: 25);
                   },
@@ -165,8 +166,8 @@ class _DeliveryAddressBottomSheetWidgetState
                     return InkWell(
                       onTap: () {
                         _con
-                            .changeDeliveryAddress(
-                                _con.addresses.elementAt(index))
+                            ?.changeDeliveryAddress(
+                                _con?.addresses.elementAt(index)??Address())
                             .then((value) {
                           if (widget.scaffoldKey.currentContext != null) {
                             Navigator.of(widget.scaffoldKey.currentContext!)
@@ -201,7 +202,7 @@ class _DeliveryAddressBottomSheetWidgetState
                                         CrossAxisAlignment.start,
                                     children: <Widget>[
                                       Text(
-                                        (_con.addresses
+                                        (_con?.addresses
                                                 .elementAt(index)
                                                 .address ??
                                             ''),

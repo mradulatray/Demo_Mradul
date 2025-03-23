@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:food_delivery_app/src/models/favorite.dart';
 import 'package:mvc_pattern/mvc_pattern.dart';
 
 import '../../generated/l10n.dart';
@@ -29,7 +30,7 @@ class FoodWidget extends StatefulWidget {
 }
 
 class _FoodWidgetState extends StateMVC<FoodWidget> {
-  late FoodController _con;
+  FoodController? _con;
 
   _FoodWidgetState() : super(FoodController()) {
     _con = controller as FoodController;
@@ -37,20 +38,20 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
 
   @override
   void initState() {
-    _con.listenForFood(foodId: widget.routeArgument.id);
-    _con.listenForCart();
-    _con.listenForFavorite(foodId: widget.routeArgument.id);
+    _con?.listenForFood(foodId: widget.routeArgument.id);
+    _con?.listenForCart();
+    _con?.listenForFavorite(foodId: widget.routeArgument.id);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _con.scaffoldKey,
-      body: _con.food.image == null
+      key: _con?.scaffoldKey,
+      body: _con?.food?.image == null
           ? CircularLoadingWidget(height: 500)
           : RefreshIndicator(
-              onRefresh: _con.refreshFood,
+              onRefresh: _con?.refreshFood ?? () async {},
               child: Stack(
                 fit: StackFit.expand,
                 children: <Widget>[
@@ -74,10 +75,10 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                             collapseMode: CollapseMode.parallax,
                             background: Hero(
                               tag: widget.routeArgument.heroTag ??
-                                  '' + (_con.food.id ?? ''),
+                                  '' + (_con?.food?.id ?? ''),
                               child: CachedNetworkImage(
                                 fit: BoxFit.cover,
-                                imageUrl: _con.food.image?.url ?? '',
+                                imageUrl: _con?.food?.image?.url ?? '',
                                 placeholder: (context, url) => Image.asset(
                                   'assets/img/loading.gif',
                                   fit: BoxFit.cover,
@@ -105,7 +106,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                             CrossAxisAlignment.start,
                                         children: <Widget>[
                                           Text(
-                                            _con.food.name ?? '',
+                                            _con?.food?.name ?? '',
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 2,
                                             style: Theme.of(context)
@@ -113,7 +114,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                                 .displaySmall,
                                           ),
                                           Text(
-                                            _con.food.restaurant?.name ?? '',
+                                            _con?.food?.restaurant?.name ?? '',
                                             overflow: TextOverflow.ellipsis,
                                             maxLines: 2,
                                             style: Theme.of(context)
@@ -130,16 +131,16 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                             CrossAxisAlignment.end,
                                         children: <Widget>[
                                           Helper.getPrice(
-                                            _con.food.price ?? 0,
+                                            _con?.food?.price ?? 0,
                                             context,
                                             style: Theme.of(context)
                                                     .textTheme
                                                     .displayMedium ??
                                                 TextStyle(fontSize: 14),
                                           ),
-                                          (_con.food.discountPrice ?? 0) > 0
+                                          (_con?.food?.discountPrice ?? 0) > 0
                                               ? Helper.getPrice(
-                                                  (_con.food.discountPrice ??
+                                                  (_con?.food?.discountPrice ??
                                                       0),
                                                   context,
                                                   style: (Theme.of(context)
@@ -164,18 +165,18 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                           horizontal: 12, vertical: 3),
                                       decoration: BoxDecoration(
                                           color: Helper.canDelivery(
-                                                      _con.food.restaurant ??
+                                                      _con?.food?.restaurant ??
                                                           Restaurant()) &&
-                                                  (_con.food.deliverable ??
+                                                  (_con?.food?.deliverable ??
                                                       false)
                                               ? Colors.green
                                               : Colors.orange,
                                           borderRadius:
                                               BorderRadius.circular(24)),
                                       child: Helper.canDelivery(
-                                                  _con.food.restaurant ??
+                                                  _con?.food?.restaurant ??
                                                       Restaurant()) &&
-                                              (_con.food.deliverable ?? false)
+                                              (_con?.food?.deliverable ?? false)
                                           ? Text(
                                               S.of(context).deliverable,
                                               style: Theme.of(context)
@@ -200,7 +201,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                                         decoration: BoxDecoration(color: Theme.of(context).focusColor, borderRadius: BorderRadius.circular(24)),
                                         child: Text(
-                                          _con.food.weight + " " + _con.food.unit,
+                                          _con.food?.weight + " " + _con.food?.unit,
                                           style: Theme.of(context).textTheme.caption.merge(TextStyle(color: Theme.of(context).primaryColor)),
                                         )),*/
                                     SizedBox(width: 5),
@@ -208,7 +209,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 3),
                                         decoration: BoxDecoration(color: Theme.of(context).focusColor, borderRadius: BorderRadius.circular(24)),
                                         child: Text(
-                                          _con.food.packageItemsCount + " " + S.of(context).items,
+                                          _con.food?.packageItemsCount + " " + S.of(context).items,
                                           style: Theme.of(context).textTheme.caption.merge(TextStyle(color: Theme.of(context).primaryColor)),
                                         )),*/
                                   ],
@@ -216,11 +217,11 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                 Divider(height: 20),
                                 // some changes
                                 // Helper.applyHtml(
-                                //     context, (_con.food.description ?? ''),
+                                //     context, (_con.food?.description ?? ''),
                                 //     style: TextStyle(fontSize: 12)),
                                 // Divider(height: 20),
                                 // Helper.applyHtml(
-                                //     context, (_con.food.units ?? ''),
+                                //     context, (_con.food?.units ?? ''),
                                 //     style: TextStyle(fontSize: 12)),
                                 /*ListTile(
                                   dense: true,
@@ -234,17 +235,18 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                     style: Theme.of(context).textTheme.subtitle1,
                                   ),
                                   subtitle: Text(
-                                    S.of(context).select_extras_to_add_them_on_the_food,
+                                    S.of(context).select_extras_to_add_them_on_the_food?,
                                     style: Theme.of(context).textTheme.caption,
                                   ),
                                 ),*/
-                                _con.food.extraGroups == null
+                                _con?.food?.extraGroups == null
                                     ? CircularLoadingWidget(height: 100)
                                     : ListView.separated(
                                         padding: EdgeInsets.all(0),
                                         itemBuilder:
                                             (context, extraGroupIndex) {
-                                          var extraGroup = _con.food.extraGroups
+                                          var extraGroup = _con
+                                              ?.food?.extraGroups
                                               ?.elementAt(extraGroupIndex);
                                           return Wrap(
                                             children: <Widget>[
@@ -269,14 +271,14 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                               //   padding: EdgeInsets.all(0),
                                               //   itemBuilder: (context, extraIndex) {
                                               //     return ExtraItemWidget(
-                                              //       extra: _con.food.extras.where((extra) => extra.extraGroupId == extraGroup.id).elementAt(extraIndex),
+                                              //       extra: _con.food?.extras.where((extra) => extra.extraGroupId == extraGroup.id).elementAt(extraIndex),
                                               //       onChanged: _con.calculateTotal,
                                               //     );
                                               //   },
                                               //   separatorBuilder: (context, index) {
                                               //     return SizedBox(height: 20);
                                               //   },
-                                              //   itemCount: _con.food.extras.where((extra) => extra.extraGroupId == extraGroup.id).length,
+                                              //   itemCount: _con.food?.extras.where((extra) => extra.extraGroupId == extraGroup.id).length,
                                               //   primary: false,
                                               //   shrinkWrap: true,
                                               // ),
@@ -287,7 +289,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                           return SizedBox(height: 20);
                                         },
                                         itemCount:
-                                            _con.food.extraGroups?.length ?? 0,
+                                            _con?.food?.extraGroups?.length ?? 0,
                                         primary: false,
                                         shrinkWrap: true,
                                       ),
@@ -304,7 +306,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                 //     style: Theme.of(context).textTheme.subtitle1,
                                 //   ),
                                 // ),
-                                // Helper.applyHtml(context, _con.food.ingredients, style: TextStyle(fontSize: 12)),
+                                // Helper.applyHtml(context, _con.food?.ingredients, style: TextStyle(fontSize: 12)),
                                 //
                                 //   ListTile(
                                 //   dense: true,
@@ -322,7 +324,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                   spacing: 8,
                                   runSpacing: 8,
                                   children: List.generate(
-                                      (_con.food.nutritions?.length ?? 0),
+                                      (_con?.food?.nutritions?.length ?? 0),
                                       (index) {
                                     return Container(
                                       padding: EdgeInsets.symmetric(
@@ -343,7 +345,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                         mainAxisSize: MainAxisSize.min,
                                         children: <Widget>[
                                           Text(
-                                              (_con.food.nutritions
+                                              (_con?.food?.nutritions
                                                       ?.elementAt(index)
                                                       .name ??
                                                   ''),
@@ -352,7 +354,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                                   .textTheme
                                                   .bodySmall),
                                           Text(
-                                              (_con.food.nutritions
+                                              (_con?.food?.nutritions
                                                       ?.elementAt(index)
                                                       .quantity)
                                                   .toString(),
@@ -378,7 +380,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                 //   ),
                                 // ),
                                 // ReviewsListWidget(
-                                //   reviewsList: _con.food.foodReviews,
+                                //   reviewsList: _con.food?.foodReviews,
                                 // ),
                               ],
                             ),
@@ -390,7 +392,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                   Positioned(
                     top: 32,
                     right: 20,
-                    child: _con.loadCart
+                    child: (_con?.loadCart ?? false)
                         ? SizedBox(
                             width: 60,
                             height: 60,
@@ -399,8 +401,8 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                         : ShoppingCartFloatButtonWidget(
                             iconColor: Theme.of(context).primaryColor,
                             labelColor: Theme.of(context).hintColor,
-                            routeArgument:
-                                RouteArgument(param: '/Food', id: _con.food.id),
+                            routeArgument: RouteArgument(
+                                param: '/Food', id: _con?.food?.id),
                           ),
                   ),
                   Positioned(
@@ -442,7 +444,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                   children: <Widget>[
                                     IconButton(
                                       onPressed: () {
-                                        _con.decrementQuantity();
+                                        _con?.decrementQuantity();
                                       },
                                       iconSize: 30,
                                       padding: EdgeInsets.symmetric(
@@ -450,13 +452,13 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                       icon: Icon(Icons.remove_circle_outline),
                                       color: Theme.of(context).hintColor,
                                     ),
-                                    Text(_con.quantity.toString(),
+                                    Text((_con?.quantity.toString() ?? ''),
                                         style: Theme.of(context)
                                             .textTheme
                                             .titleMedium),
                                     IconButton(
                                       onPressed: () {
-                                        _con.incrementQuantity();
+                                        _con?.incrementQuantity();
                                       },
                                       iconSize: 30,
                                       padding: EdgeInsets.symmetric(
@@ -472,11 +474,11 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                             Row(
                               children: <Widget>[
                                 Expanded(
-                                  child: _con.favorite.id != null
+                                  child: _con?.favorite?.id != null
                                       ? OutlinedButton(
                                           onPressed: () {
-                                            _con.removeFromFavorite(
-                                                _con.favorite);
+                                            _con?.removeFromFavorite(
+                                                _con?.favorite ?? Favorite());
                                           },
                                           style: ButtonStyle(
                                               padding: WidgetStateProperty.all(
@@ -513,7 +515,8 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                               Navigator.of(context)
                                                   .pushNamed("/Login");
                                             } else {
-                                              _con.addToFavorite(_con.food);
+                                              _con?.addToFavorite(
+                                                  _con?.food ?? Food());
                                             }
                                           },
                                           padding:
@@ -544,9 +547,10 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                             Navigator.of(context)
                                                 .pushNamed("/Login");
                                           } else {
-                                            if (_con
-                                                .isSameRestaurants(_con.food)) {
-                                              _con.addToCart(_con.food);
+                                            if (_con?.isSameRestaurants(
+                                                _con?.food ?? Food()) ?? false) {
+                                              _con?.addToCart(
+                                                  _con?.food ?? Food());
                                             } else {
                                               showDialog(
                                                 context: context,
@@ -554,15 +558,16 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                                     (BuildContext context) {
                                                   // return object of type Dialog
                                                   return AddToCartAlertDialogWidget(
-                                                      oldFood: _con.carts
+                                                      oldFood: _con?.carts
                                                               .elementAt(0)
                                                               .food ??
                                                           Food(),
-                                                      newFood: _con.food,
+                                                      newFood:
+                                                          _con?.food ?? Food(),
                                                       onPressed: (food,
                                                           {reset = true}) {
-                                                        return _con.addToCart(
-                                                            _con.food,
+                                                        return _con?.addToCart(
+                                                            _con?.food ?? Food(),
                                                             reset: true);
                                                       });
                                                 },
@@ -594,7 +599,7 @@ class _FoodWidgetState extends StateMVC<FoodWidget> {
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 20),
                                       child: Helper.getPrice(
-                                        _con.total,
+                                        (_con?.total ?? 0),
                                         context,
                                         style: (Theme.of(context)
                                                     .textTheme
