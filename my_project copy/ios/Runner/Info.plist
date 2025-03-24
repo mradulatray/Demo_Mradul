@@ -45,5 +45,27 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>This app requires</string>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Bluetooth is required</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Bluetooth is required</string>
+	<key>NSCalendarsUsageDescription</key>
+	<string>This app requires</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app requires to take the photo from camera</string>
+	<key>NSContactsUsageDescription</key>
+	<string>This app requires to contact delivery boy or owner of markets</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>Localization is required to find where you are</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Localization is required to find where you are</string>
+	<key>NSMotionUsageDescription</key>
+	<string>This app requires</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app requires access to the photo library to support Chat Features.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech Recognition is required</string>
 </dict>
 </plist>

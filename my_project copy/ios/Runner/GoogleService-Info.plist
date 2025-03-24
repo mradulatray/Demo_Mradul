@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>712666927026-qmrqrcbikjb8ppq495962o11p400b9mg.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.712666927026-qmrqrcbikjb8ppq495962o11p400b9mg</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>712666927026-76bla2qpcoifenk4956ikjdhgu82082j.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDbgK_jcQ4wavBPYpfuCL5c_cmEzVF0qV0</string>
+	<key>GCM_SENDER_ID</key>
+	<string>712666927026</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.smartersvision.food-delivery-app-2</string>
+	<key>PROJECT_ID</key>
+	<string>fooddeliver192</string>
+	<key>STORAGE_BUCKET</key>
+	<string>fooddeliver192.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:712666927026:ios:64a49178c287ac0096deab</string>
+	<key>DATABASE_URL</key>
+	<string>https://fooddeliver192.firebaseio.com</string>
+</dict>
+</plist>
