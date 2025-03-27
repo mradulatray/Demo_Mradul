@@ -101,7 +101,7 @@ class RouteGenerator {
       case '/DeliveryPickup':
         return MaterialPageRoute(
             builder: (_) =>
-                DeliveryPickupWidget(routeArgument: args as RouteArgument));
+                DeliveryPickupWidget(routeArgument: args as RouteArgument?));
       case '/Checkout':
         return MaterialPageRoute(builder: (_) => CheckoutWidget());
       case '/CashOnDelivery':

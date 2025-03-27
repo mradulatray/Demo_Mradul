@@ -17,10 +17,9 @@ import '../models/restaurant.dart';
 import '../models/route_argument.dart';
 
 class DeliveryPickupWidget extends StatefulWidget {
-  final RouteArgument routeArgument;
+  final RouteArgument? routeArgument;
 
-  DeliveryPickupWidget({Key? key, required this.routeArgument})
-      : super(key: key);
+  const DeliveryPickupWidget({super.key, this.routeArgument});
 
   @override
   _DeliveryPickupWidgetState createState() => _DeliveryPickupWidgetState();
@@ -37,7 +36,8 @@ class _DeliveryPickupWidgetState extends StateMVC<DeliveryPickupWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _con?.scaffoldKey,
-      bottomNavigationBar: CartBottomDetailsWidget(con: _con ?? DeliveryPickupController()),
+      bottomNavigationBar:
+          CartBottomDetailsWidget(con: _con ?? DeliveryPickupController()),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -51,7 +51,7 @@ class _DeliveryPickupWidgetState extends StateMVC<DeliveryPickupWidget> {
               ?.merge(TextStyle(letterSpacing: 1.3)),
         ),
         actions: <Widget>[
-          new ShoppingCartButtonWidget(
+          ShoppingCartButtonWidget(
               iconColor: Theme.of(context).hintColor,
               labelColor: Theme.of(context).colorScheme.secondary),
         ],
@@ -133,19 +133,19 @@ class _DeliveryPickupWidgetState extends StateMVC<DeliveryPickupWidget> {
                           ),
                   ),
                 ),
-                (_con?.carts
-                        .isNotEmpty ?? false)/* && Helper.canDelivery(_con.carts[0].food.restaurant, carts: _con.carts)*/
+                (_con?.carts.isNotEmpty ??
+                        false) /* && Helper.canDelivery(_con.carts[0].food.restaurant, carts: _con.carts)*/
                     ? DeliveryAddressesItemWidget(
                         paymentMethod: _con?.getDeliveryMethod(),
                         address: _con?.deliveryAddress ?? Address(),
-                        onPressed: (Address _address) {
+                        onPressed: (Address address) {
                           //debugPrint("delivery_pickup     ---  ${_con.deliveryAddress}");
                           if (_con?.deliveryAddress == 'null') {
                             DeliveryAddressDialog(
                               context: context,
-                              address: _address,
-                              onChanged: (Address _address) {
-                                _con?.addAddress(_address);
+                              address: address,
+                              onChanged: (Address address) {
+                                _con?.addAddress(address);
                                 _con?.toggleDelivery();
                               },
                             );

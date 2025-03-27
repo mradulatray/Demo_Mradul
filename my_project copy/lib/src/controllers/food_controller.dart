@@ -22,7 +22,7 @@ class FoodController extends ControllerMVC {
   // BuildContext get safeContext {
   //   return state?.context ?? scaffoldKey.currentContext!;
   // }
-  
+
   BuildContext? get safeContext {
     return state?.context ??
         scaffoldKey.currentContext ??
@@ -35,11 +35,13 @@ class FoodController extends ControllerMVC {
 
   void listenForFood({String? foodId, String? message}) async {
     final Stream<Food> stream = await getFood(foodId ?? "");
-    stream.listen((Food _food) {
-      setState(() => food = _food);
+    stream.listen((Food fetchFood) {
+      setState(() {
+        food = fetchFood;
+      });
     }, onError: (a) {
       print(a);
-      if (scaffoldKey.currentContext != null && safeContext!=null) {
+      if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
           content: Text(S.of(safeContext!).verify_your_internet_connection),
         ));
@@ -59,8 +61,10 @@ class FoodController extends ControllerMVC {
 
   void listenForFavorite({String? foodId}) async {
     final Stream<Favorite> stream = await isFavoriteFood(foodId ?? '');
-    stream.listen((Favorite _favorite) {
-      setState(() => favorite = _favorite);
+    stream.listen((Favorite fetchFavorite) {
+      setState(() {
+        favorite = fetchFavorite;
+      });
     }, onError: (a) {
       print(a);
     });
@@ -68,8 +72,8 @@ class FoodController extends ControllerMVC {
 
   void listenForCart() async {
     final Stream<Cart> stream = await getCart();
-    stream.listen((Cart _cart) {
-      carts.add(_cart);
+    stream.listen((Cart cart) {
+      carts.add(cart);
     });
   }
 
@@ -82,43 +86,65 @@ class FoodController extends ControllerMVC {
 
   void addToCart(Food food, {bool reset = false}) async {
     setState(() {
-      this.loadCart = true;
+      loadCart = true;
     });
-    var _newCart = new Cart();
-    _newCart.food = food;
-    _newCart.extras =
+    var newCart = Cart();
+    newCart.food = food;
+    newCart.extras =
         food.extras?.where((element) => (element.checked ?? false)).toList();
-    _newCart.quantity = this.quantity;
+    newCart.quantity = quantity;
     // if food exist in the cart then increment quantity
-    var _oldCart = isExistInCart(_newCart);
-    _oldCart.quantity = (_oldCart.quantity ?? 0) + this.quantity;
-    updateCart(_oldCart).then((value) {
-      setState(() {
-        this.loadCart = false;
+
+    var oldCart = isExistInCart(newCart);
+    if (oldCart != null) {
+      oldCart.quantity = (oldCart.quantity ?? 0) + quantity;
+      updateCart(oldCart).then((value) {
+        setState(() {
+          loadCart = false;
+        });
+      }).whenComplete(() {
+        if (scaffoldKey.currentContext != null && safeContext != null) {
+          ScaffoldMessenger.of(scaffoldKey.currentContext!)
+              .showSnackBar(SnackBar(
+            content: Text(S.of(safeContext!).this_food_was_added_to_cart),
+          ));
+        }
       });
-    }).whenComplete(() {
-      if (scaffoldKey.currentContext != null && safeContext != null) {
-        ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
-          content: Text(S.of(safeContext!).this_food_was_added_to_cart),
-        ));
-      }
-    });
+    } else {
+      addCart(newCart, reset).then((value) {
+        setState(() {
+          loadCart = false;
+        });
+      }).whenComplete(() {
+        if (scaffoldKey.currentContext != null && safeContext != null) {
+          ScaffoldMessenger.of(scaffoldKey.currentContext!)
+              .showSnackBar(SnackBar(
+            content: Text(S.of(safeContext!).this_food_was_added_to_cart),
+          ));
+        }
+      });
+    }
   }
 
-  Cart isExistInCart(Cart _cart) {
-    return carts.firstWhere((Cart oldCart) => _cart.isSame(oldCart),
-        orElse: () => Cart());
+  Cart? isExistInCart(Cart cart) {
+    try {
+      return carts.firstWhere((Cart oldCart) => cart.isSame(oldCart));
+    } catch (e) {
+      return null; // Return null if no match is found
+    }
+    // return carts.firstWhere((Cart oldCart) => cart.isSame(oldCart),
+    //     orElse: () => Cart());
   }
 
   void addToFavorite(Food food) async {
-    var _favorite = new Favorite();
-    _favorite.food = food;
-    _favorite.extras = food.extras?.where((Extra _extra) {
-      return _extra.checked ?? false;
+    var favorite = Favorite();
+    favorite.food = food;
+    favorite.extras = food.extras?.where((Extra extra) {
+      return extra.checked ?? false;
     }).toList();
-    addFavorite(_favorite).then((value) {
+    addFavorite(favorite).then((value) {
       setState(() {
-        this.favorite = value;
+        favorite = value;
       });
       if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
@@ -128,10 +154,10 @@ class FoodController extends ControllerMVC {
     });
   }
 
-  void removeFromFavorite(Favorite _favorite) async {
-    removeFavorite(_favorite).then((value) {
+  void removeFromFavorite(Favorite favorite) async {
+    removeFavorite(favorite).then((value) {
       setState(() {
-        this.favorite = new Favorite();
+        favorite = Favorite();
       });
       if (scaffoldKey.currentContext != null && safeContext != null) {
         ScaffoldMessenger.of(scaffoldKey.currentContext!).showSnackBar(SnackBar(
@@ -142,12 +168,13 @@ class FoodController extends ControllerMVC {
   }
 
   Future<void> refreshFood() async {
-    var _id = food?.id;
-    food = new Food();
-    listenForFavorite(foodId: _id);
-    if(safeContext!=null){
-    listenForFood(
-        foodId: _id, message: S.of(safeContext!).foodRefreshedSuccessfuly);}
+    var id = food?.id;
+    food = Food();
+    listenForFavorite(foodId: id);
+    if (safeContext != null) {
+      listenForFood(
+          foodId: id, message: S.of(safeContext!).foodRefreshedSuccessfuly);
+    }
   }
 
   void calculateTotal() {
@@ -160,15 +187,15 @@ class FoodController extends ControllerMVC {
   }
 
   incrementQuantity() {
-    if (this.quantity <= 99) {
-      ++this.quantity;
+    if (quantity <= 99) {
+      ++quantity;
       calculateTotal();
     }
   }
 
   decrementQuantity() {
-    if (this.quantity > 1) {
-      --this.quantity;
+    if (quantity > 1) {
+      --quantity;
       calculateTotal();
     }
   }
